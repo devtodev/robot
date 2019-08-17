@@ -6,8 +6,8 @@
  */
 
 #include <stdio.h>
+#include "telemetry.h"
 #include <rc/adc.h>
-#include <rc/mpu.h>
 #include <rc/start_stop.h>
 
 #define I2C_BUS 2
@@ -30,10 +30,12 @@ uint8_t sensors_init()
 	return 0;
 }
 
-uint8_t telemetry_init()
+uint8_t telemetryInit()
 {
 	// ADC init
-    if ((-1 == rc_enable_signal_handler()) || (rc_adc_init())){
+    if ((-1 == rc_enable_signal_handler()) ||
+    	(-1 == rc_adc_init()))
+    {
             fprintf(stderr,"ERROR: failed to run rc_init_adc()\n");
             return -1;
     }
@@ -41,17 +43,21 @@ uint8_t telemetry_init()
     rc_mpu_config_t config = rc_mpu_default_config();
 	config.i2c_bus = I2C_BUS;
     // calibrate
-	if(0>rc_mpu_calibrate_gyro_routine(config)){
+/*	if(0>rc_mpu_calibrate_gyro_routine(config))
+	{
 		printf("Failed to complete gyro calibration\n");
 		return -1;
 	}
-	if(0>rc_mpu_calibrate_accel_routine(config)){
+	if(0>rc_mpu_calibrate_accel_routine(config))
+	{
 		printf("Failed to complete accelerometer calibration\n");
 		return -1;
 	}
+	*/
 	if (0>sensors_init())
 	{
-		prinf("Failed to initializing sensors");
+		printf("Failed to initializing sensors");
+		return -1;
 	}
     return 0;
 }
@@ -59,17 +65,18 @@ uint8_t telemetry_init()
 uint8_t refreshPowerStatus()
 {
 	// read in the voltage of the 2S pack and DC jack
-	power.pack_voltage = rc_adc_batt();
+	power.batt_voltage = rc_adc_batt();
 	power.jack_voltage = rc_adc_dc_jack();
 
 	// sanity check the SDC didn't return an error
-	if(power.pack_voltage<0.0 || power.jack_voltage<0.0){
+	if(power.batt_voltage<0.0 || power.jack_voltage<0.0)
+	{
 		return -1;
 	}
 
 	// check if a pack is on the 2S balance connector
-	if(power.pack_voltage<VOLTAGE_DISCONNECT){
-		power.pack_voltage = 0;
+	if(power.batt_voltage<VOLTAGE_DISCONNECT){
+		power.batt_voltage = 0;
 	}
 
 	if(power.jack_voltage<VOLTAGE_DISCONNECT){
@@ -97,7 +104,7 @@ uint8_t refreshSensorsStatus()
 	return 0;
 }
 
-uint8_t telemetry_refresh()
+uint8_t telemetryRefresh()
 {
 	if(0>refreshPowerStatus()){
 		printf("ERROR: can't read voltages\n");
@@ -110,9 +117,20 @@ uint8_t telemetry_refresh()
 	return 0;
 }
 
-uint8_t telemetry_shutdown()
+void telemetryPrintVars()
+{
+	printf("\n|===========================================|");
+	printf("\n| temp:   %4.1f                              |", sensors.data.temp);
+	printf("\n| gyro: %6.1f %6.1f %6.1f                | ", sensors.data.gyro[0], sensors.data.gyro[1], sensors.data.gyro[2]);
+	printf("\n| acce:  %6.2f %6.2f %6.2f               | ", sensors.data.accel[0], sensors.data.accel[1], sensors.data.accel[2]);
+	printf("\n|-------------------------------------------|");
+	printf("\n| Pack:   %0.2lfV DC Jack: %0.2lfV              | ", power.batt_voltage, power.jack_voltage);
+	printf("\n|===========================================|");
+	fflush(stdout);
+}
+
+void telemetryShutdown()
 {
 	rc_adc_cleanup();
 	rc_mpu_power_off();
-	return 0;
 }
