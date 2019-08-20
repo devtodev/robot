@@ -6,9 +6,9 @@
  */
 
 #include <stdio.h>
-#include "telemetry.h"
 #include <rc/adc.h>
 #include <rc/start_stop.h>
+#include "telemetry.h"
 
 #define I2C_BUS 2
 #define VOLTAGE_DISCONNECT	1 // Threshold for detecting disconnected battery

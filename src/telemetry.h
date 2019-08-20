@@ -9,7 +9,7 @@
 #define TELEMETRY_H_
 
 #include <inttypes.h>
-#include <rc/mpu.h>
+#include "rc/mpu.h"
 
 typedef enum g_mode_t{
 	G_MODE_RAD,

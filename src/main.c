@@ -9,6 +9,7 @@
 #include "telemetry.h"
 #include "rc/start_stop.h"
 #include "rc/led.h"
+#include "rc/time.h"
 
 typedef enum {
 	DEBUG,
@@ -41,7 +42,7 @@ int programInit()
 	return 0;
 }
 
-int main(void)
+int main2(void)
 {
 	int toggle = 0;			// led status
 	int timeDelay = 170000; // microseconds
