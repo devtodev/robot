@@ -42,7 +42,7 @@ int programInit()
 	return 0;
 }
 
-int main2(void)
+int main(void)
 {
 	int toggle = 0;			// led status
 	int timeDelay = 170000; // microseconds

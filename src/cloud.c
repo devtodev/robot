@@ -22,7 +22,7 @@
 
 #define MSG_WELCOME "Welcome to the jaguar house..."
 
-int main(int argc, char *argv[])
+int telemetryPost(Sensors sensors, Power power)
 {
    char buffer[MAXRCVLEN + 1]; /* +1 so we can add null terminator */
    int len, mysocket;
@@ -49,8 +49,3 @@ int main(int argc, char *argv[])
    return EXIT_SUCCESS;
 }
 
-int telemetryPost(Sensors sensors, Power power)
-{
-
-  return 0;
-}
