@@ -48,7 +48,8 @@ int main(void)
 	int timeDelay = 170000; // microseconds
 
 	if ((0>programInit()) ||
-		(0>telemetryInit()))
+		(0>telemetryInit()) ||
+		(0>cloudConnect()))
 	{
 		return -1;
 	}
@@ -69,6 +70,10 @@ int main(void)
 			}
 		}
 		telemetryRefresh();
+		if (0 < cloudReadData())
+		{
+			// cloudTelemetryPost(getSensors(), getPower());
+		}
 		if (programMode == DEBUG)
 		{
 			telemetryPrintVars();
@@ -81,5 +86,6 @@ int main(void)
 	rc_led_set(RC_LED_RED, 0);
 	telemetryShutdown();
 	rc_remove_pid_file();
+	cloudShutDown();
 	return 0;
 }

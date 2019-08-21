@@ -37,6 +37,8 @@ typedef struct {
 uint8_t telemetryRefresh();
 uint8_t telemetryInit();
 void telemetryPrintVars();
+Sensors *getSensors();
+Power *getPower();
 void telemetryShutdown();
 
 #endif /* TELEMETRY_H_ */

@@ -129,6 +129,16 @@ void telemetryPrintVars()
 	fflush(stdout);
 }
 
+Power *getPower()
+{
+	return &power;
+}
+
+Sensors *getSensors()
+{
+	return &sensors;
+}
+
 void telemetryShutdown()
 {
 	rc_adc_cleanup();

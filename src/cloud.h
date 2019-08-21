@@ -8,12 +8,21 @@
 #ifndef CLOUD_H_
 #define CLOUD_H_
 
-struct string
-{
-  char *ptr;
-  size_t len;
-};
+#include <netinet/in.h>
 
-int telemetryPost(Sensors sensors, Power power);
+#define CLOUD_BUFFER_SIZE 1024
+
+typedef struct
+{
+	int socketID;
+	int flags;
+	struct sockaddr_in socketDestination;
+	char buffer[CLOUD_BUFFER_SIZE];
+} Connection;
+
+int cloudConnect();
+int cloudReadData();
+int cloudTelemetryPost(Sensors sensors, Power power);
+void cloudShutDown();
 
 #endif /* CLOUD_H_ */
