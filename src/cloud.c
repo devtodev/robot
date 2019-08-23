@@ -7,6 +7,7 @@
 
 #include "telemetry.h"
 #include "cloud.h"
+#include "motion.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -87,10 +88,16 @@ int cloudReadData()
 
 	if(msgLen > 0) {
 		printf(" %s", connection.buffer);
-		cloudSendData(connection.buffer);
+		cloudSendData(connection.buffer);		// echo
+		readCloudCommand(connection.buffer);	// read command
 		return msgLen;
 	}
 	return 0;
+}
+
+char getConnectonBuffer()
+{
+	return connection.buffer;
 }
 
 int cloudTelemetryPost(Sensors sensors, Power power)

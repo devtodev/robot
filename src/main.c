@@ -72,6 +72,7 @@ int main(void)
 		telemetryRefresh();
 		if (0 < cloudReadData())
 		{
+			// acknowledgement
 			// cloudTelemetryPost(getSensors(), getPower());
 		}
 		if (programMode == DEBUG)
