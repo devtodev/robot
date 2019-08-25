@@ -57,6 +57,42 @@ int cloudConnect()
 	return EXIT_SUCCESS;
 }
 
+int readCloudCommand(char *command)
+{
+	printf("* %c %c %c %c %c * \n", command[1], command[2], command[3], command[4], command[5]);
+	if ((command[2] != '{')
+		|| (command[4] != '}')
+		|| (command[5] != '!'))
+	{
+		return -1;
+	}
+	switch (command[3])
+	{
+		case 'i':
+			motionDo(FORWARD);
+			break;
+		case 'j':
+			motionDo(LEFT);
+			break;
+		case 'l':
+			motionDo(RIGHT);
+			break;
+		case 'k':
+			motionDo(STOP);
+			break;
+		case 'd':
+			motionDo(HIGHTSPEED);
+			break;
+		case 's':
+			motionDo(LOWSPEED);
+			break;
+		default:
+			return -1;
+			break;
+	}
+	return 0;
+}
+
 int cloudSendData(char *data)
 {
    if (EXIT_SUCCESS != sendto(connection.socketID, data, strlen(data) ,0,
@@ -84,18 +120,18 @@ int cloudWelcome()
 
 int cloudReadData()
 {
-	int msgLen = recv(connection.socketID,connection.buffer,CLOUD_BUFFER_SIZE,0);
+	int msgLen = recv(connection.socketID,&connection.buffer[0],CLOUD_BUFFER_SIZE,0);
 
 	if(msgLen > 0) {
-		printf(" %s", connection.buffer);
-		cloudSendData(connection.buffer);		// echo
-		readCloudCommand(connection.buffer);	// read command
+		printf(" %s", &connection.buffer[0]);
+		//cloudSendData(&connection.buffer[0]);		// echo
+		readCloudCommand(&connection.buffer[0]);	// read command
 		return msgLen;
 	}
 	return 0;
 }
 
-char getConnectonBuffer()
+char *getConnectonBuffer()
 {
 	return connection.buffer;
 }

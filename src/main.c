@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 #include "telemetry.h"
+#include "cloud.h"
+#include "motion.h"
 #include "rc/start_stop.h"
 #include "rc/led.h"
 #include "rc/time.h"
@@ -46,7 +48,7 @@ int main(void)
 {
 	int toggle = 0;			// led status
 	int timeDelay = 170000; // microseconds
-
+	motionInit();
 	if ((0>programInit()) ||
 		(0>telemetryInit()) ||
 		(0>cloudConnect()))
@@ -77,7 +79,7 @@ int main(void)
 		}
 		if (programMode == DEBUG)
 		{
-			telemetryPrintVars();
+			//telemetryPrintVars();
 		}
 		// sleep the right delay based on current mode.
 		rc_usleep(timeDelay);
@@ -88,5 +90,6 @@ int main(void)
 	telemetryShutdown();
 	rc_remove_pid_file();
 	cloudShutDown();
+	motionShutdown();
 	return 0;
 }
