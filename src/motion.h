@@ -16,6 +16,7 @@ typedef struct {
 	double duty;
 } Motor;
 
+void motionInit();
 int motionDo(Action action);
 void motionShutdown();
 

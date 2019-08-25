@@ -49,9 +49,9 @@ int main(void)
 	int toggle = 0;			// led status
 	int timeDelay = 170000; // microseconds
 	motionInit();
+    cloudInit();
 	if ((0>programInit()) ||
-		(0>telemetryInit()) ||
-		(0>cloudConnect()))
+		(0>telemetryInit()))
 	{
 		return -1;
 	}
@@ -70,6 +70,11 @@ int main(void)
 				rc_led_set(RC_LED_RED,0);
 				toggle=1;
 			}
+		}
+
+		if (getConnectionStatus() == OFFLINE)
+		{
+			cloudConnect();
 		}
 		telemetryRefresh();
 		if (0 < cloudReadData())

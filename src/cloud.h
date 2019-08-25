@@ -12,16 +12,21 @@
 
 #define CLOUD_BUFFER_SIZE 1024
 
+typedef enum {OFFLINE, ONLINE} Status;
+
 typedef struct
 {
 	int socketID;
 	int flags;
 	struct sockaddr_in socketDestination;
 	char buffer[CLOUD_BUFFER_SIZE];
+	Status status;
 } Connection;
 
+void cloudInit();
 int cloudConnect();
 int cloudReadData();
+Status getConnectionStatus();
 int cloudTelemetryPost(Sensors sensors, Power power);
 void cloudShutDown();
 

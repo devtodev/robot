@@ -17,6 +17,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include "rc/time.h"
 
 #define MAXRCVLEN 500
 #define PORTNUM 3000
@@ -37,7 +38,7 @@ int errorCheck(int n, char * err)
 	return n;
 }
 
-int cloudConnect()
+void cloudInit()
 {
 	connection.socketID = socket(AF_INET, SOCK_STREAM, 0);
 //	connection.flags = errorCheck(fcntl(connection.socketID, F_GETFL), "could not get flags on TCP listening socket");
@@ -47,12 +48,22 @@ int cloudConnect()
 	connection.socketDestination.sin_family = AF_INET;
 	connection.socketDestination.sin_addr.s_addr = inet_addr(SERVER_IP);
 	connection.socketDestination.sin_port = htons(SERVER_PORT);
+}
 
+int cloudConnect()
+{
+	rc_usleep(300000);
 	//errorCheck(bind(connection.socketID, (struct sockaddr *) &connection.socketDestination, sizeof(struct sockaddr_in)), "could not bind");
-	if (0<connect(connection.socketID, (struct sockaddr *)&connection.socketDestination, sizeof(struct sockaddr_in)))
+	int conn = connect(connection.socketID, (struct sockaddr *)&connection.socketDestination, sizeof(struct sockaddr_in));
+	if (0>conn)
 	{
-	   printf("Cloud connection fail");
+		connection.status = OFFLINE;
+	    printf("\nCloud connection fail : %d \n", conn);
+	} else {
+		connection.status = ONLINE;
+		printf("\nCloud-Robot connection established : %d \n", conn);
 	}
+
 	//errorCheck(listen(connection.socketID, 100), "could not listen");
 	return EXIT_SUCCESS;
 }
@@ -131,11 +142,6 @@ int cloudReadData()
 	return 0;
 }
 
-char *getConnectonBuffer()
-{
-	return connection.buffer;
-}
-
 int cloudTelemetryPost(Sensors sensors, Power power)
 {
 	cloudSendData("Hola!\n");
@@ -145,5 +151,10 @@ int cloudTelemetryPost(Sensors sensors, Power power)
 void cloudShutDown()
 {
 	close(connection.socketID);
+}
+
+Status getConnectionStatus()
+{
+	return connection.status;
 }
 
