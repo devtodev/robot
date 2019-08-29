@@ -13,6 +13,8 @@
 #include "rc/led.h"
 #include "rc/time.h"
 
+#define TIMEDELAY 			100000 // microseconds
+#define TIMETOTELEMETRY		3	   // Multiplier of TIMEDELAY
 typedef enum {
 	DEBUG,
 	PRODUCTION,
@@ -47,7 +49,7 @@ int programInit()
 int main(void)
 {
 	int toggle = 0;			// led status
-	int timeDelay = 170000; // microseconds
+	int timeToTelemetry = 0;
 	motionInit();
     cloudInit();
 	if ((0>programInit()) ||
@@ -71,23 +73,34 @@ int main(void)
 				toggle=1;
 			}
 		}
-
+		// TODO: REFACTOR THIS!
 		if (getConnectionStatus() == OFFLINE)
 		{
 			cloudConnect();
-		}
-		telemetryRefresh();
-		if (0 < cloudReadData())
-		{
-			// acknowledgement
-			// cloudTelemetryPost(getSensors(), getPower());
+		} else {
+			telemetryRefresh();
+
+			if (0 < cloudReadData())
+			{
+				// acknowledgement
+			}
+
+			if (TIMETOTELEMETRY < timeToTelemetry)
+			{
+				timeToTelemetry = 0;
+				// time to flush
+				rc_usleep(1000);
+				cloudTelemetryPost(getSensors(), getPower());
+			} else {
+				timeToTelemetry++;
+			}
 		}
 		if (programMode == DEBUG)
 		{
 			//telemetryPrintVars();
 		}
 		// sleep the right delay based on current mode.
-		rc_usleep(timeDelay);
+		rc_usleep(TIMEDELAY);
 	}
 	// program shutdown
 	rc_led_set(RC_LED_GREEN, 0);

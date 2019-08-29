@@ -11,6 +11,9 @@
 #include "motion.h"
 #include <rc/motor.h>
 
+#define LEFT_FORWARD        1  // to solve inverted cables
+#define RIGHT_FORWARD       1
+
 #define LEFT_CHANNEL_MOTOR  1
 #define RIGHT_CHANNEL_MOTOR 3
 
@@ -40,22 +43,24 @@ void motionInit()
 
 void moveForward()
 {
+	motorLeft.duty = LEFT_FORWARD;
+	motorRight.duty = RIGHT_FORWARD;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
 
 void turnLeft()
 {
-	motorLeft.duty = 1;
-	motorRight.duty = -1;
+	motorLeft.duty = LEFT_FORWARD;
+	motorRight.duty = RIGHT_FORWARD * -1;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
 
 void turnRight()
 {
-	motorLeft.duty = -1;
-	motorRight.duty = 1;
+	motorLeft.duty = LEFT_FORWARD * -1;
+	motorRight.duty = RIGHT_FORWARD;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }

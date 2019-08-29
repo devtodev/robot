@@ -129,14 +129,14 @@ void telemetryPrintVars()
 	fflush(stdout);
 }
 
-Power *getPower()
+Power getPower()
 {
-	return &power;
+	return power;
 }
 
-Sensors *getSensors()
+Sensors getSensors()
 {
-	return &sensors;
+	return sensors;
 }
 
 void telemetryShutdown()
