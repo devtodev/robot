@@ -17,17 +17,22 @@ void jsonBegin(char *result)
 
 void jsonEnd(char *result)
 {
+	int i = strlen(result);
+	result[i - 2] = '\0';
 	strcat(result, "}\0");
 }
 
 void jsonObjBegin(char *name, char *result)
 {
+	strcat(result, "\"\0");
 	strcat(result, name);
-	strcat(result, " : { \0");
+	strcat(result, "\" : { \0");
 }
 void jsonObjEnd(char *result)
 {
-	strcat(result, " }, \0");
+	int i = strlen(result);
+	result[i - 2] = '\0';
+	strcat(result, "}, \0");
 }
 
 void jsonKeyValue(char *key, char *value, char *result)

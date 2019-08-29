@@ -51,16 +51,16 @@ void moveForward()
 
 void turnLeft()
 {
-	motorLeft.duty = LEFT_FORWARD;
-	motorRight.duty = RIGHT_FORWARD * -1;
+	motorLeft.duty = LEFT_FORWARD  * -1;
+	motorRight.duty = RIGHT_FORWARD;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
 
 void turnRight()
 {
-	motorLeft.duty = LEFT_FORWARD * -1;
-	motorRight.duty = RIGHT_FORWARD;
+	motorLeft.duty = LEFT_FORWARD;
+	motorRight.duty = RIGHT_FORWARD * -1;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
