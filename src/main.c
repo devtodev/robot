@@ -14,7 +14,7 @@
 #include "rc/time.h"
 
 #define TIMEDELAY 			100000 // microseconds
-#define TIMETOTELEMETRY		3	   // Multiplier of TIMEDELAY
+#define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
 typedef enum {
 	DEBUG,
 	PRODUCTION,
