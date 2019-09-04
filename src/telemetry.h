@@ -11,6 +11,10 @@
 #include <inttypes.h>
 #include "rc/mpu.h"
 
+#define X 0
+#define Y 1
+#define Z 2
+
 typedef enum g_mode_t{
 	G_MODE_RAD,
 	G_MODE_DEG,

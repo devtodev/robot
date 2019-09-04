@@ -19,8 +19,9 @@
 
 Motor motorLeft;
 Motor motorRight;
-Speed speed;
 double motorFreqHZ;
+Action currentAction;
+PID motorsPID;
 
 void updateMotor(const Motor motor)
 {
@@ -29,50 +30,54 @@ void updateMotor(const Motor motor)
 
 void motionInit()
 {
+	currentAction = STOP;
+	// init motor PID
+	motorsPID.kp = 0;
+	motorsPID.ki = 0;
+	motorsPID.kd = 1;
+	motorRight.duty = 1;
+	motorLeft.duty = 1;
+	// init motors
 	motorLeft.channel = LEFT_CHANNEL_MOTOR;
 	motorLeft.duty = 1;
 	motorRight.channel = RIGHT_CHANNEL_MOTOR;
 	motorRight.duty = 1;
+	// init encoders
+	if(rc_encoder_eqep_init()==-1){
+		fprintf(stderr,"ERROR: failed to initialize eqep encoders\n");
+		return;
+	}
 	// init hardware
 	motorFreqHZ = RC_MOTOR_DEFAULT_PWM_FREQ;
-	//rc_motor_init_freq(motorFreqHZ);
+	rc_motor_init_freq(motorFreqHZ);
+	rc_motor_standby(1);
 	// to test
-	 	rc_motor_init();
+	//rc_motor_init();
 	//  rc_motor_free_spin(int ch);
 }
 
 void moveForward()
 {
-	motorLeft.duty = LEFT_FORWARD;
-	motorRight.duty = RIGHT_FORWARD;
+	motorLeft.duty = LEFT_FORWARD * motorLeft.duty;
+	motorRight.duty = RIGHT_FORWARD * motorRight.duty;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
 
 void turnLeft()
 {
-	motorLeft.duty = LEFT_FORWARD  * -1;
-	motorRight.duty = RIGHT_FORWARD;
+	motorLeft.duty = LEFT_FORWARD  * -1;//  * motorLeft.duty;
+	motorRight.duty = RIGHT_FORWARD;//  * motorRight.duty;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
 
 void turnRight()
 {
-	motorLeft.duty = LEFT_FORWARD;
-	motorRight.duty = RIGHT_FORWARD * -1;
+	motorLeft.duty = LEFT_FORWARD;// * motorLeft.duty;
+	motorRight.duty = RIGHT_FORWARD * -1;// * motorRight.duty;
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
-}
-
-void highSpeed()
-{
-	speed = HIGH;
-}
-
-void lowSpeed()
-{
-	speed = LOW;
 }
 
 void stop()
@@ -95,19 +100,59 @@ int motionDo(Action action)
 			turnRight();
 			break;
 		case STOP:
+			motorLeft.duty = 1;
+			motorRight.duty = 1;
 			stop();
 			break;
 		case HIGHTSPEED:
-			highSpeed();
+			motorLeft.duty = 1;
+			motorRight.duty = 1;
 			break;
 		case LOWSPEED:
-			lowSpeed();
+			motorLeft.duty = 0.5;
+			motorRight.duty = 0.5;
 			break;
 		default:
 			return -1;
 			break;
 	}
+	currentAction = action;
 	return 0;
+}
+
+void speedCorrection(int factor)
+{
+	motorLeft.duty =  motorLeft.duty + factor / 10;
+	motorRight.duty = motorRight.duty - factor / 10;
+	motorLeft.duty = (motorLeft.duty > 1)?1:motorLeft.duty;
+	motorLeft.duty = (motorLeft.duty < -1)?-1:motorLeft.duty;
+	motorRight.duty = (motorRight.duty > 1)?1:motorRight.duty;
+	motorRight.duty = (motorRight.duty < -1)?-1:motorRight.duty;
+
+	//updateMotor(motorLeft);
+	//updateMotor(motorRight);
+}
+
+void motionControl(Sensors sensors)
+{
+	if (currentAction == FORWARD)
+	{
+		/* motorsPID.lastError = motorsPID.error;
+		motorsPID.error =  0 - sensors.data.gyro[Z];
+		motorsPID.integral = motorsPID.integral + motorsPID.error;
+		motorsPID.derivative = motorsPID.error - motorsPID.lastError;
+		motorsPID.correction = motorsPID.kp * motorsPID.error +
+							   motorsPID.ki * motorsPID.integral +
+							   motorsPID.kd * motorsPID.derivative; */
+		speedCorrection(motorsPID.correction);
+		printf("X %4.1f Y %4.1f Z %4.1f -- PID: %4.1f -- L %4.1f R %4.1f\n",
+				sensors.data.gyro[X],
+				sensors.data.gyro[Y],
+				sensors.data.gyro[Z],
+				motorsPID.correction,
+				motorLeft.duty,
+				motorRight.duty);
+	}
 }
 
 void motionShutdown()

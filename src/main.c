@@ -79,6 +79,7 @@ int main(void)
 			cloudConnect();
 		} else {
 			telemetryRefresh();
+			motionControl(getSensors());
 
 			if (0 < cloudReadData())
 			{

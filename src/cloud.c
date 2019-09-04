@@ -25,7 +25,7 @@
 #define PORTNUM 3000
 
 #define MSG_WELCOME "Welcome to the jaguar house..."
-#define SERVER_IP "192.168.0.19"
+#define SERVER_IP "192.168.11.102"
 #define SERVER_PORT 3000
 
 Connection connection;
@@ -162,7 +162,7 @@ int cloudTelemetryPost(Sensors sensors, Power power)
 	jsonKeyDouble("battery\0", power.batt_voltage, buffer);
 	jsonKeyDouble("jack\0", power.jack_voltage, buffer);
 	jsonEnd(buffer);
-	printf("%s \n", buffer);
+	// printf("%s \n", buffer);
 	cloudSendData(buffer);
 	return EXIT_SUCCESS;
 }

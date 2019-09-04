@@ -12,6 +12,7 @@
 
 #define I2C_BUS 2
 #define VOLTAGE_DISCONNECT	1 // Threshold for detecting disconnected battery
+#define SAMPLE_RATE_HZ		100
 
 Power power;
 Sensors sensors;
@@ -21,6 +22,16 @@ uint8_t sensors_init()
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
 	conf.show_warnings = 0; // zero to enable
+	conf.dmp_sample_rate = SAMPLE_RATE_HZ;
+	conf.orient = ORIENTATION_Z_UP;
+
+	// if gyro isn't calibrated, run the calibration routine
+	if(!rc_mpu_is_gyro_calibrated()){
+		printf("Gyro not calibrated, automatically starting calibration routine\n");
+		printf("Let your MiP sit still on a firm surface\n");
+		rc_mpu_calibrate_gyro_routine(conf);
+	}
+
 	sensors.g_mode = G_MODE_DEG;
 	sensors.a_mode = A_MODE_MS2;
 	if(rc_mpu_initialize(&sensors.data, conf)){
@@ -39,22 +50,7 @@ uint8_t telemetryInit()
             fprintf(stderr,"ERROR: failed to run rc_init_adc()\n");
             return -1;
     }
-    // init I2C
-    rc_mpu_config_t config = rc_mpu_default_config();
-	config.i2c_bus = I2C_BUS;
-    // calibrate
-/*	if(0>rc_mpu_calibrate_gyro_routine(config))
-	{
-		printf("Failed to complete gyro calibration\n");
-		return -1;
-	}
-	if(0>rc_mpu_calibrate_accel_routine(config))
-	{
-		printf("Failed to complete accelerometer calibration\n");
-		return -1;
-	}
-	*/
-	if (0>sensors_init())
+    if (0>sensors_init())
 	{
 		printf("Failed to initializing sensors");
 		return -1;
