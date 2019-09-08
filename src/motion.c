@@ -10,6 +10,7 @@
 #include <string.h>
 #include "motion.h"
 #include <rc/motor.h>
+#include "action.h"
 
 #define LEFT_FORWARD        1  // to solve inverted cables
 #define RIGHT_FORWARD       1
@@ -20,7 +21,7 @@
 Motor motorLeft;
 Motor motorRight;
 double motorFreqHZ;
-Action currentAction;
+ActionType currentAction;
 PID motorsPID;
 
 void updateMotor(const Motor motor)
@@ -60,6 +61,7 @@ void moveForward()
 {
 	motorLeft.duty = LEFT_FORWARD * motorLeft.duty;
 	motorRight.duty = RIGHT_FORWARD * motorRight.duty;
+	rc_motor_standby(0);
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
@@ -68,6 +70,7 @@ void turnLeft()
 {
 	motorLeft.duty = LEFT_FORWARD  * -1;//  * motorLeft.duty;
 	motorRight.duty = RIGHT_FORWARD;//  * motorRight.duty;
+	rc_motor_standby(0);
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
@@ -76,6 +79,7 @@ void turnRight()
 {
 	motorLeft.duty = LEFT_FORWARD;// * motorLeft.duty;
 	motorRight.duty = RIGHT_FORWARD * -1;// * motorRight.duty;
+	rc_motor_standby(0);
 	updateMotor(motorLeft);
 	updateMotor(motorRight);
 }
@@ -84,9 +88,10 @@ void stop()
 {
 	rc_motor_brake(motorLeft.channel);
 	rc_motor_brake(motorRight.channel);
+	rc_motor_standby(1);
 }
 
-int motionDo(Action action)
+int motionDo(ActionType action)
 {
 	switch (action)
 	{
@@ -133,7 +138,7 @@ void speedCorrection(int factor)
 	//updateMotor(motorRight);
 }
 
-void motionControl(Sensors sensors)
+void motionControl(double gyro[3])
 {
 	if (currentAction == FORWARD)
 	{
@@ -145,13 +150,6 @@ void motionControl(Sensors sensors)
 							   motorsPID.ki * motorsPID.integral +
 							   motorsPID.kd * motorsPID.derivative; */
 		speedCorrection(motorsPID.correction);
-		printf("X %4.1f Y %4.1f Z %4.1f -- PID: %4.1f -- L %4.1f R %4.1f\n",
-				sensors.data.gyro[X],
-				sensors.data.gyro[Y],
-				sensors.data.gyro[Z],
-				motorsPID.correction,
-				motorLeft.duty,
-				motorRight.duty);
 	}
 }
 

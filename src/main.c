@@ -59,7 +59,27 @@ int main(void)
 	}
 	// Run the main loop until state is EXITING which is set by hitting ctrl-c
 	// or holding down the pause button for more than the quit timeout period
+	int action = STOP;
 	while(rc_get_state()!=EXITING){
+//		if (action == STOP)
+//		{
+//			action = RIGHT;
+//			motionDo(action);
+//		}
+//		if (((getGyroZ() > 90) || (getGyroZ() < -90)) && (action == RIGHT))
+//		{
+//			motionDo(STOP);
+//			rc_usleep(1000000);
+//			action = LEFT;
+//			motionDo(action);
+//		} else
+//		if (((getGyroZ() > 90) || (getGyroZ() < -90)) && (action == LEFT))
+//		{
+//			action = STOP;
+//			motionDo(action);
+//			rc_usleep(1000000);
+//		}
+//		printf("\n z %4.1f \n");
 		// if the state is RUNNING (instead of PAUSED) then blink!
 		if(rc_get_state()==RUNNING){
 			if(toggle){
@@ -79,7 +99,7 @@ int main(void)
 			cloudConnect();
 		} else {
 			telemetryRefresh();
-			motionControl(getSensors());
+			//motionControl();
 
 			if (0 < cloudReadData())
 			{
@@ -91,7 +111,7 @@ int main(void)
 				timeToTelemetry = 0;
 				// time to flush
 				rc_usleep(1000);
-				cloudTelemetryPost(getSensors(), getPower());
+				cloudTelemetryPost();
 			} else {
 				timeToTelemetry++;
 			}

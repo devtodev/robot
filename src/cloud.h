@@ -27,7 +27,7 @@ void cloudInit();
 int cloudConnect();
 int cloudReadData();
 Status getConnectionStatus();
-int cloudTelemetryPost(Sensors sensors, Power power);
+int cloudTelemetryPost();
 void cloudShutDown();
 
 #endif /* CLOUD_H_ */

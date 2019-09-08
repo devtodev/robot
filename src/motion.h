@@ -9,8 +9,7 @@
 #define MOTION_H_
 
 #include "telemetry.h"	// to use in PID algorithms, TODO: decouple
-
-typedef enum {FORWARD, LEFT, RIGHT, STOP, HIGHTSPEED, LOWSPEED} Action;
+#include "action.h"
 
 typedef struct {
 	int channel;
@@ -29,8 +28,8 @@ typedef struct {
 } PID;
 
 void motionInit();
-int motionDo(Action action);
-void motionControl(Sensors sensors);
+int motionDo(ActionType action);
+void motionControl(double gyro[3]);
 void motionShutdown();
 
 #endif /* MOTION_H_ */

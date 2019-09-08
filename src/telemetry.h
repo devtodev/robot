@@ -40,8 +40,9 @@ typedef struct {
 
 uint8_t telemetryRefresh();
 uint8_t telemetryInit();
+void telemetryReport(char *buffer);
 void telemetryPrintVars();
-Sensors getSensors();
+double getGyroZ();
 Power getPower();
 void telemetryShutdown();
 
