@@ -10,20 +10,20 @@
 
 #include "sensor.h"
 #include "action.h"
+#include "dashboard.h"
 
-typedef enum {
-	EQUALS, BIGGEST, SMALLER
-} ConditionType;
+typedef struct {
+	Sensors *sensors;
+	Actions *actions;
+	Dashboard *dashboad;
+	// cloud
+	// files
+	time_t now;
+} Brain;
 
-typedef struct _Condition {
-	ConditionType type;
-	Sensor sensor;
-	Action action;
-	int score;
-	struct _Condition *next;
-} Condition;
+Sensors gyro;
 
-
-Sensor gyro;
+Brain* brainInit(Sensors *sensors, Actions *actions, Dashboard *dashboad);
+Sensors *refreshSensors();
 
 #endif /* BRAIN_H_ */

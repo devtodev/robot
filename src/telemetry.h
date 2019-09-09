@@ -36,7 +36,7 @@ typedef struct {
 	rc_mpu_data_t data; 	// struct to hold new data
 	g_mode_t g_mode; 		// gyro default to degree mode.
 	a_mode_t a_mode; 		// accel default to m/s^2
-} Sensors;
+} Sensor;
 
 uint8_t telemetryRefresh();
 uint8_t telemetryInit();

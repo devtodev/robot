@@ -9,28 +9,55 @@
 #define SENSOR_H_
 
 #include "time.h"
+#include "utils.h"
 
 typedef enum {
-	ACC, GYRO, US
+	ACC, GYRO, US, METER, BATTERY, JACK
 } SensorType;
 
 typedef enum {
-	RAW, M2S, DEG, RAD
+	RAW, M2S, DEG, RAD, VOLT
 } UnitType;
 
 typedef enum {
 	LOW_PASS, HIGH_PASS, INTEGRATOR, LP_BUTTER, HP_BUTTER
 } FilterType;
 
-typedef struct {
+typedef struct _Sensor {
 	SensorType type;
 	double value;
 	UnitType unit;
 	FilterType filter;
-	time_t start;
-	time_t end;
+	time_t *start;
+	time_t *end;
 	int score;
-	Sensor *next;
-} Sensor;
+	void (*initSensor)();
+	void (*refreshSensor)();
+	void (*closeSensor)();
+	// sensor array->next
+	struct _Sensor *next;
+} Sensors;
+
+Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
+			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());
+
+Sensors *initSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
+			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());
+
+void gyroInit();
+void gyroRefresh();
+void gyroClose();
+void accInit();
+void accRefresh();
+void accClose();
+void usInit();
+void usRefresh();
+void usClose();
+void batteryInit();
+void batteryRefresh();
+void batteryClose();
+void jackInit();
+void jackRefresh();
+void jackClose();
 
 #endif /* SENSOR_H_ */

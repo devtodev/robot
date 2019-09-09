@@ -21,7 +21,7 @@
 #define SAMPLE_RATE_HZ		100
 
 Power power;
-Sensors sensors;
+Sensor sensors;
 
 #define SAMPLE_RATE	50
 #define TIME_CONSTANT	2.0

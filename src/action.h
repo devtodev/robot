@@ -9,9 +9,10 @@
 #define ACTION_H_
 
 #include "time.h"
+#include "utils.h"
 
 typedef enum {
-	FORWARD, BACKWARD, RIGHT, LEFT, STOP, OPENCV, CLOSECV, HIGHTSPEED, LOWSPEED
+	FORWARD, BACKWARD, RIGHT, LEFT, STOP, OPENCV, CLOSECV, HIGHTSPEED, LOWSPEED, RC_LED_GREEN_ON, RC_LED_GREEN_OFF, RC_LED_RED_ON, RC_LED_RED_OFF
 } ActionType;
 
 typedef struct _Action{
@@ -20,6 +21,7 @@ typedef struct _Action{
 	time_t end;
 	int score;
 	struct _Action *next;
-} Action;
+} Actions;
+
 
 #endif /* ACTION_H_ */
