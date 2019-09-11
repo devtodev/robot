@@ -12,6 +12,7 @@
 #include "rc/start_stop.h"
 #include "rc/led.h"
 #include "rc/time.h"
+#include "brain.h"
 
 #define TIMEDELAY 			100000 // microseconds
 #define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
@@ -48,87 +49,16 @@ int programInit()
 
 int main(void)
 {
-	int toggle = 0;			// led status
-	int timeToTelemetry = 0;
-	motionInit();
-    cloudInit();
-	if ((0>programInit()) ||
-		(0>telemetryInit()))
-	{
-		return -1;
-	}
-	// Run the main loop until state is EXITING which is set by hitting ctrl-c
-	// or holding down the pause button for more than the quit timeout period
-	int action = STOP;
+    programInit();
+    Brain *brain = getDefaultBrian();
 	while(rc_get_state()!=EXITING){
-//		if (action == STOP)
-//		{
-//			action = RIGHT;
-//			motionDo(action);
-//		}
-//		if (((getGyroZ() > 90) || (getGyroZ() < -90)) && (action == RIGHT))
-//		{
-//			motionDo(STOP);
-//			rc_usleep(1000000);
-//			action = LEFT;
-//			motionDo(action);
-//		} else
-//		if (((getGyroZ() > 90) || (getGyroZ() < -90)) && (action == LEFT))
-//		{
-//			action = STOP;
-//			motionDo(action);
-//			rc_usleep(1000000);
-//		}
-//		printf("\n z %4.1f \n");
-		// if the state is RUNNING (instead of PAUSED) then blink!
-		if(rc_get_state()==RUNNING){
-			if(toggle){
-				rc_led_set(RC_LED_GREEN,0);
-				rc_led_set(RC_LED_RED,1);
-				toggle = 0;
-			}
-			else{
-				rc_led_set(RC_LED_GREEN,1);
-				rc_led_set(RC_LED_RED,0);
-				toggle=1;
-			}
-		}
-		// TODO: REFACTOR THIS!
-		if (getConnectionStatus() == OFFLINE)
-		{
-			cloudConnect();
-		} else {
-			telemetryRefresh();
-			//motionControl();
-
-			if (0 < cloudReadData())
-			{
-				// acknowledgement
-			}
-
-			if (TIMETOTELEMETRY < timeToTelemetry)
-			{
-				timeToTelemetry = 0;
-				// time to flush
-				rc_usleep(1000);
-				cloudTelemetryPost();
-			} else {
-				timeToTelemetry++;
-			}
-		}
-		if (programMode == DEBUG)
-		{
-			//telemetryPrintVars();
-		}
+		brainRefresh(brain);
 		// sleep the right delay based on current mode.
 		rc_usleep(TIMEDELAY);
 	}
 	// program shutdown
 	rc_led_set(RC_LED_GREEN, 0);
 	rc_led_set(RC_LED_RED, 0);
-	telemetryShutdown();
 	rc_remove_pid_file();
-	cloudShutDown();
-	motionShutdown();
 	return 0;
 }

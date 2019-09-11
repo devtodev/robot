@@ -64,9 +64,9 @@ uint8_t sensors_init()
 		printf("Let your MiP sit still on a firm surface\n");
 		rc_mpu_calibrate_gyro_routine(conf);
 	}
-
-	sensors.g_mode = G_MODE_DEG;
-	sensors.a_mode = A_MODE_MS2;
+//
+//	sensors.g_mode = G_MODE_DEG;
+//	sensors.a_mode = A_MODE_MS2;
 	if(rc_mpu_initialize(&sensors.data, conf)){
 		fprintf(stderr,"rc_mpu_initialize_failed\n");
 		return -1;

@@ -15,15 +15,14 @@
 typedef struct {
 	Sensors *sensors;
 	Actions *actions;
-	Dashboard *dashboad;
+	Dashboard *dashboard;
 	// cloud
 	// files
 	time_t now;
 } Brain;
 
-Sensors gyro;
 
-Brain* brainInit(Sensors *sensors, Actions *actions, Dashboard *dashboad);
-Sensors *refreshSensors();
+void brainRefresh(Brain* brain);
+Brain* getDefaultBrian();
 
 #endif /* BRAIN_H_ */

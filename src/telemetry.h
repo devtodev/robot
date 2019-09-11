@@ -11,21 +11,11 @@
 #include <inttypes.h>
 #include "rc/mpu.h"
 
+
 #define X 0
 #define Y 1
 #define Z 2
 
-typedef enum g_mode_t{
-	G_MODE_RAD,
-	G_MODE_DEG,
-	G_MODE_RAW
-} g_mode_t;
-
-typedef enum a_mode_t{
-	A_MODE_MS2,
-	A_MODE_G,
-	A_MODE_RAW
-} a_mode_t;
 
 typedef struct {
 	double batt_voltage;	// 2S pack voltage on JST XH 2S balance connector
@@ -34,8 +24,6 @@ typedef struct {
 
 typedef struct {
 	rc_mpu_data_t data; 	// struct to hold new data
-	g_mode_t g_mode; 		// gyro default to degree mode.
-	a_mode_t a_mode; 		// accel default to m/s^2
 } Sensor;
 
 uint8_t telemetryRefresh();
