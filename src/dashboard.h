@@ -2,13 +2,15 @@
  * dashboard.h
  *
  *  Created on: Sep 8, 2019
- *      Author: karl
+ *      Author: Carlos Miguens
  */
 
 #ifndef DASHBOARD_H_
 #define DASHBOARD_H_
 
 #include "time.h"
+#include "action.h"
+#include "sensor.h"
 
 typedef enum {
 	EQUALS, BIGGEST, SMALLER
@@ -17,28 +19,25 @@ typedef enum {
 typedef struct _Condition {
 	ConditionType type;
 	Sensors *sensors;
-	Actions *action;
+	Actions *action; // action to do when the condition was targeted
 	int score;
 	struct _Condition *next;
 } Conditions;
 
 typedef struct _Point {
 	int score;
-	Conditions condition;
+	Conditions *condition;
 	Actions *learning; // action path to match condition
-	time_t done;
+	time_t timestamp;
+	int done;
 	struct _Point *next;
 } Point;
 
 typedef struct {
-	int wishLen;
-	Point wishes;
-} Wishlist;
-
-typedef struct {
 	int score;
-	Point points;
-	Wishlist rules;
+	Point *point;
 } Dashboard;
 
+void initPoint(Point *point, Conditions *condition, int score, Actions *learning);
+void addPoint(Point *point, Conditions *condition, int score, Actions *learning);
 #endif /* DASHBOARD_H_ */

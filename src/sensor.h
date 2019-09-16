@@ -17,11 +17,11 @@
 
 
 typedef enum {
-	ACC, GYRO, US, METER, BATTERY, JACK
+	ACC, GYRO, US, METER, BATTERY, JACK, TEMP
 } SensorType;
 
 typedef enum {
-	RAW, M2S, DEG, RAD, VOLT
+	RAW, M2S, DEG, RAD, VOLT, C
 } UnitType;
 
 typedef enum {
@@ -64,18 +64,21 @@ typedef struct {
 Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());
 
-Sensors *initSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
+Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());
 
 void gyroInit();
 void gyroRefresh();
 void gyroClose();
 void accInit();
-void accRefresh();
+void accRefresh(double *value);
 void accClose();
 void usInit();
 void usRefresh();
 void usClose();
+void tempInit();
+void tempRefresh();
+void tempClose();
 void batteryInit();
 void batteryRefresh();
 void batteryClose();

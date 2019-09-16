@@ -12,17 +12,6 @@
 #include "action.h"
 #include "dashboard.h"
 
-typedef struct {
-	Sensors *sensors;
-	Actions *actions;
-	Dashboard *dashboard;
-	// cloud
-	// files
-	time_t now;
-} Brain;
-
-
-void brainRefresh(Brain* brain);
-Brain* getDefaultBrian();
+void setDefaultBrian();
 
 #endif /* BRAIN_H_ */

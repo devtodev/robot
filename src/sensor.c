@@ -6,25 +6,13 @@
  */
 
 #include "sensor.h"
+#include "rc/mpu.h"
 #include "stdlib.h"
 #include "stdio.h"
 
 RawSensor rawSensor;
 
-Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
-			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
-{
-	Sensors *sensorCursor =  malloc(sizeof(Sensors));
-	initSensor(sensorCursor, sensorType, unit, filter, initSensor, refreshSensor, closeSensor);
-	while (sensors->next != NULL)
-	{
-		sensors = sensors->next;
-	}
-	sensors->next = sensorCursor;
-	return sensors->next;
-}
-
-Sensors *initSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
+Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
 {
 	sensors->type = sensorType;
@@ -39,6 +27,19 @@ Sensors *initSensor(Sensors *sensors, SensorType sensorType, UnitType unit, Filt
 	sensors->closeSensor = closeSensor;
 	sensors->next = NULL;
 	return sensors;
+}
+
+Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
+			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
+{
+	Sensors *sensorCursor =  malloc(sizeof(Sensors));
+	initSetSensor(sensorCursor, sensorType, unit, filter, initSensor, refreshSensor, closeSensor);
+	while (sensors->next != NULL)
+	{
+		sensors = sensors->next;
+	}
+	sensors->next = sensorCursor;
+	return sensors->next;
 }
 
 void gyroInit() {
@@ -60,16 +61,43 @@ void gyroInit() {
 		return;
 	}
 }
-void gyroRefresh() {}
+void gyroRefresh() {
+	//signalFiltering(sensors.data.gyro[Z]);
+	if(0>rc_mpu_read_gyro(&rawSensor.data)){
+		printf("read gyro data failed\n");
+		return;
+	}
+}
 void gyroClose() {}
 
 void accInit() {}
-void accRefresh() {}
+void accRefresh(double *value) {
+	// calculate acceleration, speed and distance walked
+	if(0>rc_mpu_read_accel(&rawSensor.data)){
+		printf("read accel data failed\n");
+		return;
+	}
+	*value = rawSensor.data.accel[3];
+}
 void accClose() {}
 
 void usInit() {}
-void usRefresh() {}
+
+void usRefresh() {
+
+
+}
+
 void usClose() {}
+
+void tempInit()
+{}
+
+void tempRefresh()
+{}
+
+void tempClose()
+{}
 
 void batteryInit() {}
 void batteryRefresh() {}

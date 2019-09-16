@@ -14,7 +14,7 @@
 #include "rc/time.h"
 #include "brain.h"
 
-#define TIMEDELAY 			100000 // microseconds
+#define TIMEDELAY 			1000000 // microseconds
 #define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
 typedef enum {
 	DEBUG,
@@ -50,9 +50,9 @@ int programInit()
 int main(void)
 {
     programInit();
-    Brain *brain = getDefaultBrian();
+    setDefaultBrian();
 	while(rc_get_state()!=EXITING){
-		brainRefresh(brain);
+		brainRefresh();
 		// sleep the right delay based on current mode.
 		rc_usleep(TIMEDELAY);
 	}
