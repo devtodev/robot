@@ -23,8 +23,5 @@ typedef struct _Action{
 	struct _Action *next;
 } Actions;
 
-typedef enum {
-	EQUALS, BIGGEST, SMALLER
-} ConditionType;
 
 #endif /* ACTION_H_ */
