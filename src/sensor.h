@@ -17,7 +17,7 @@
 
 
 typedef enum {
-	ACC, GYRO, US, METER, BATTERY, JACK, TEMP
+	GYRO, ACC, US, TEMP, BATTERY, JACK, METER
 } SensorType;
 
 typedef enum {
@@ -40,7 +40,6 @@ typedef struct _Sensor {
 	void (*refreshSensor)();
 	void (*closeSensor)();
 	rc_mpu_config_t *mpu_config;
-	// sensor array->next
 	struct _Sensor *next;
 } Sensors;
 
@@ -67,23 +66,29 @@ Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, Filte
 Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());
 
+
+void sensorsInit(Sensors *cursor);
+void sensorsRefresh(Sensors *cursor);
+void sensorsShutdown(Sensors *cursor);
+Sensors* getSensor(Sensors *cursor, SensorType type);
+
 void gyroInit();
-void gyroRefresh();
+void gyroRefresh(double *value);
 void gyroClose();
 void accInit();
 void accRefresh(double *value);
 void accClose();
 void usInit();
-void usRefresh();
+void usRefresh(double *value);
 void usClose();
 void tempInit();
-void tempRefresh();
+void tempRefresh(double *value);
 void tempClose();
 void batteryInit();
-void batteryRefresh();
+void batteryRefresh(double *value);
 void batteryClose();
 void jackInit();
-void jackRefresh();
+void jackRefresh(double *value);
 void jackClose();
 
 #endif /* SENSOR_H_ */

@@ -28,6 +28,7 @@ void setDefaultSensors()
 	addSensor(&sensors, TEMP, C, LOW_PASS, tempInit, tempRefresh, tempClose);
 	addSensor(&sensors, BATTERY, VOLT, LOW_PASS, batteryInit, batteryRefresh, batteryClose);
 	addSensor(&sensors, JACK, VOLT, LOW_PASS, jackInit, jackRefresh, jackClose);
+	sensorsInit(&sensors);
 }
 
 void setDefaultBrian()
@@ -37,11 +38,13 @@ void setDefaultBrian()
 
 void brainRefresh()
 {
-	Sensors *cursor = &sensors;
-	while (cursor != NULL) {
-		cursor->refreshSensor();
-		printf("%4.1f \n", cursor->value);
-		cursor = cursor->next;
-	}
+	sensorsRefresh(&sensors);
+	Sensors* temp = getSensor(&sensors, GYRO);
+	printf("Gyro: %4.1f\n", temp->value);
+}
+
+void brainShutdown()
+{
+	sensorsShutdown(&sensors);
 }
 

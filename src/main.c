@@ -14,7 +14,7 @@
 #include "rc/time.h"
 #include "brain.h"
 
-#define TIMEDELAY 			1000000 // microseconds
+#define TIMEDELAY 			10000 // microseconds
 #define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
 typedef enum {
 	DEBUG,
@@ -59,6 +59,7 @@ int main(void)
 	// program shutdown
 	rc_led_set(RC_LED_GREEN, 0);
 	rc_led_set(RC_LED_RED, 0);
+
 	rc_remove_pid_file();
 	return 0;
 }

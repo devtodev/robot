@@ -7,6 +7,8 @@
 
 #include "sensor.h"
 #include "rc/mpu.h"
+#include "rc/adc.h"
+#include "rc/start_stop.h"
 #include "stdlib.h"
 #include "stdio.h"
 
@@ -27,6 +29,43 @@ Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, F
 	sensors->closeSensor = closeSensor;
 	sensors->next = NULL;
 	return sensors;
+}
+
+void sensorsInit(Sensors *cursor)
+{
+	while (cursor != NULL) {
+		cursor->initSensor();
+		cursor = cursor->next;
+	}
+}
+
+void sensorsRefresh(Sensors *cursor)
+{
+	while (cursor != NULL) {
+		cursor->refreshSensor(&cursor->value);
+		//printf("%d) %4.1f \n", cursor->type, cursor->value);
+		cursor = cursor->next;
+	}
+}
+
+void sensorsShutdown(Sensors *cursor)
+{
+	while (cursor != NULL) {
+		cursor->initSensor();
+		cursor = cursor->next;
+	}
+}
+
+Sensors* getSensor(Sensors *cursor, SensorType type)
+{
+	while(cursor != NULL)
+	{
+		if (cursor->type == type)
+		{
+			return cursor;
+		}
+	}
+	return NULL;
 }
 
 Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
@@ -61,31 +100,32 @@ void gyroInit() {
 		return;
 	}
 }
-void gyroRefresh() {
+void gyroRefresh(double *value) {
 	//signalFiltering(sensors.data.gyro[Z]);
 	if(0>rc_mpu_read_gyro(&rawSensor.data)){
 		printf("read gyro data failed\n");
 		return;
 	}
+	*value = rawSensor.data.gyro[2];
 }
 void gyroClose() {}
 
 void accInit() {}
+
 void accRefresh(double *value) {
 	// calculate acceleration, speed and distance walked
 	if(0>rc_mpu_read_accel(&rawSensor.data)){
 		printf("read accel data failed\n");
 		return;
 	}
-	*value = rawSensor.data.accel[3];
+	*value = rawSensor.data.accel[0];
 }
 void accClose() {}
 
 void usInit() {}
 
-void usRefresh() {
-
-
+void usRefresh(double *value) {
+	*value = 0;
 }
 
 void usClose() {}
@@ -93,16 +133,44 @@ void usClose() {}
 void tempInit()
 {}
 
-void tempRefresh()
-{}
+void tempRefresh(double *value)
+{
+	if(0>rc_mpu_read_temp(&rawSensor.data)) {
+		printf("read imu thermometer failed\n");
+	}
+	*value = rawSensor.data.temp;
+}
 
 void tempClose()
 {}
 
-void batteryInit() {}
-void batteryRefresh() {}
-void batteryClose() {}
+void batteryInit() {
+    if ((-1 == rc_enable_signal_handler()) ||
+    	(-1 == rc_adc_init()))
+    {
+            fprintf(stderr,"ERROR: failed to run rc_init_adc()\n");
+            return;
+    }
+}
+void batteryRefresh(double *value) {
+	*value = rc_adc_batt();
+}
+void batteryClose() {
+	rc_adc_cleanup();
+	rc_mpu_power_off();
+}
 
-void jackInit() {}
-void jackRefresh() {}
-void jackClose() {}
+void jackInit() {
+    if ((-1 == rc_enable_signal_handler()) ||
+    	(-1 == rc_adc_init()))
+    {
+            fprintf(stderr,"ERROR: failed to run rc_init_adc()\n");
+    }
+}
+void jackRefresh(double *value) {
+	*value = rc_adc_dc_jack();
+}
+void jackClose() {
+	rc_adc_cleanup();
+	rc_mpu_power_off();
+}
