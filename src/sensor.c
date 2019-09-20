@@ -17,6 +17,7 @@
 RawSensor rawSensor;
 Sensors sensors;
 char *buffer;
+Power power;
 
 Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
@@ -104,8 +105,8 @@ char *getTelemetryReport()
 	jsonKeyInt("y\0", (int) rawSensor.data.gyro[1], buffer);
 	jsonKeyInt("z\0", (int) rawSensor.data.gyro[2], buffer);
 	jsonObjEnd(buffer);
-	jsonKeyDouble("battery\0", 2, buffer);
-	jsonKeyDouble("jack\0", 3, buffer);
+	jsonKeyDouble("battery\0", power.batt_voltage, buffer);
+	jsonKeyDouble("jack\0", power.jack_voltage, buffer);
 	jsonEnd(buffer);
 	return buffer;
 }
@@ -206,9 +207,18 @@ void batteryInit() {
             return;
     }
 }
+
 void batteryRefresh(double *value) {
 	*value = rc_adc_batt();
+	// read in the voltage of the 2S pack and DC jack
+	power.batt_voltage = rc_adc_batt();
+
+	// check if a pack is on the 2S balance connector
+	if(power.batt_voltage<VOLTAGE_DISCONNECT){
+		power.batt_voltage = 0;
+	}
 }
+
 void batteryClose() {
 	rc_adc_cleanup();
 	rc_mpu_power_off();
@@ -223,6 +233,12 @@ void jackInit() {
 }
 void jackRefresh(double *value) {
 	*value = rc_adc_dc_jack();
+	power.jack_voltage = rc_adc_dc_jack();
+
+	if(power.jack_voltage<VOLTAGE_DISCONNECT){
+		power.jack_voltage = 0;
+	}
+
 }
 void jackClose() {
 	rc_adc_cleanup();

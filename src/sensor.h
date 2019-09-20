@@ -14,6 +14,7 @@
 
 #define I2C_BUS 2
 #define SENSORS_REFRESH_HZ 100
+#define VOLTAGE_DISCONNECT	1 // Threshold for detecting disconnected battery
 
 
 typedef enum {
@@ -59,6 +60,10 @@ typedef struct {
 	a_mode_t a_mode; 		// accel default to m/s^2
 } RawSensor;
 
+typedef struct {
+	double batt_voltage;	// 2S pack voltage on JST XH 2S balance connector
+	double jack_voltage;	// could be dc power supply or another battery
+} Power;
 
 Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)());

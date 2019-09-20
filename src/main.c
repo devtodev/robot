@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include "telemetry.h"
 #include "cloud.h"
 #include "motion.h"
 #include "rc/start_stop.h"

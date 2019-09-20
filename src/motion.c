@@ -44,10 +44,11 @@ void motionInit()
 	motorRight.channel = RIGHT_CHANNEL_MOTOR;
 	motorRight.duty = 1;
 	// init encoders
+	/*
 	if(rc_encoder_eqep_init()==-1){
 		fprintf(stderr,"ERROR: failed to initialize eqep encoders\n");
 		return;
-	}
+	}*/
 	// init hardware
 	motorFreqHZ = RC_MOTOR_DEFAULT_PWM_FREQ;
 	rc_motor_init_freq(motorFreqHZ);

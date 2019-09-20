@@ -8,7 +8,6 @@
 #ifndef MOTION_H_
 #define MOTION_H_
 
-#include "telemetry.h"	// to use in PID algorithms, TODO: decouple
 #include "action.h"
 
 typedef struct {
