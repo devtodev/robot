@@ -13,5 +13,6 @@
 #include "dashboard.h"
 
 void setDefaultBrian();
+void brainRefresh();
 
 #endif /* BRAIN_H_ */

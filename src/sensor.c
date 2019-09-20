@@ -8,11 +8,13 @@
 #include "sensor.h"
 #include "rc/mpu.h"
 #include "rc/adc.h"
+#include "rc/time.h"
 #include "rc/start_stop.h"
 #include "stdlib.h"
 #include "stdio.h"
 
 RawSensor rawSensor;
+Sensors sensors;
 
 Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
@@ -30,6 +32,35 @@ Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, F
 	sensors->next = NULL;
 	return sensors;
 }
+
+Sensors *setDefaultSensors()
+{
+	initSetSensor(&sensors, GYRO, DEG, HIGH_PASS, gyroInit, gyroRefresh, gyroClose);
+	addSensor(&sensors, ACC, M2S, HIGH_PASS, accInit, accRefresh, accClose);
+	addSensor(&sensors, US, METER, LOW_PASS, usInit, usRefresh, usClose);
+	addSensor(&sensors, TEMP, C, LOW_PASS, tempInit, tempRefresh, tempClose);
+	addSensor(&sensors, BATTERY, VOLT, LOW_PASS, batteryInit, batteryRefresh, batteryClose);
+	addSensor(&sensors, JACK, VOLT, LOW_PASS, jackInit, jackRefresh, jackClose);
+	sensorsInit(&sensors);
+	return &sensors;
+}
+
+void* __sensor_manager(__attribute__ ((unused)) void* ptr)
+{
+	if (setDefaultSensors() == NULL)
+	{
+		printf("Error to sensors initialize\n");
+	}
+
+	while(rc_get_state()!=EXITING)
+	{
+		sensorsRefresh(&sensors);
+		rc_usleep(1000000 / SENSORS_REFRESH_HZ);
+	}
+	sensorsShutdown(&sensors);
+	return NULL;
+}
+
 
 void sensorsInit(Sensors *cursor)
 {
@@ -85,7 +116,7 @@ void gyroInit() {
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
 	conf.show_warnings = 0; // zero to enable
-	conf.dmp_sample_rate = SAMPLE_RATE_HZ;
+	conf.dmp_sample_rate = SENSORS_REFRESH_HZ;
 	conf.orient = ORIENTATION_Z_UP;
 	// if gyro isn't calibrated, run the calibration routine
 	if(!rc_mpu_is_gyro_calibrated())

@@ -13,7 +13,7 @@
 #include "rc/mpu.h"
 
 #define I2C_BUS 2
-#define SAMPLE_RATE_HZ		100
+#define SENSORS_REFRESH_HZ 100
 
 
 typedef enum {
@@ -70,7 +70,9 @@ Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, F
 void sensorsInit(Sensors *cursor);
 void sensorsRefresh(Sensors *cursor);
 void sensorsShutdown(Sensors *cursor);
+Sensors *setDefaultSensors();
 Sensors* getSensor(Sensors *cursor, SensorType type);
+void* __sensor_manager(__attribute__ ((unused)) void* ptr);
 
 void gyroInit();
 void gyroRefresh(double *value);
