@@ -6,14 +6,14 @@
  */
 
 #include <stdio.h>
-#include "telemetry.h"
 #include "cloud.h"
 #include "motion.h"
 #include "rc/start_stop.h"
-#include "rc/led.h"
 #include "rc/time.h"
+#include "rc/pthread.h"
+#include "brain.h"
 
-#define TIMEDELAY 			100000 // microseconds
+#define TIMEDELAY 			10000 // microseconds
 #define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
 typedef enum {
 	DEBUG,
@@ -48,67 +48,34 @@ int programInit()
 
 int main(void)
 {
-	int toggle = 0;			// led status
-	int timeToTelemetry = 0;
-	motionInit();
-    cloudInit();
-	if ((0>programInit()) ||
-		(0>telemetryInit()))
+	pthread_t sensors_thread = 0;
+	pthread_t cloud_thread = 0;
+
+    programInit();
+    motionInit();
+
+	// start sensor thread
+	if(rc_pthread_create(&sensors_thread, __sensor_manager, (void*) NULL, SCHED_OTHER, 0))
 	{
+		fprintf(stderr, "failed to start sensors thread\n");
 		return -1;
 	}
-	// Run the main loop until state is EXITING which is set by hitting ctrl-c
-	// or holding down the pause button for more than the quit timeout period
+
+	// start sensor thread
+	if(rc_pthread_create(&cloud_thread, __cloud_manager, (void*) NULL, SCHED_OTHER, 0))
+	{
+		fprintf(stderr, "failed to start cloud thread\n");
+		return -1;
+	}
+
 	while(rc_get_state()!=EXITING){
-		// if the state is RUNNING (instead of PAUSED) then blink!
-		if(rc_get_state()==RUNNING){
-			if(toggle){
-				rc_led_set(RC_LED_GREEN,0);
-				rc_led_set(RC_LED_RED,1);
-				toggle = 0;
-			}
-			else{
-				rc_led_set(RC_LED_GREEN,1);
-				rc_led_set(RC_LED_RED,0);
-				toggle=1;
-			}
-		}
-		// TODO: REFACTOR THIS!
-		if (getConnectionStatus() == OFFLINE)
-		{
-			cloudConnect();
-		} else {
-			telemetryRefresh();
-			motionControl(getSensors());
-
-			if (0 < cloudReadData())
-			{
-				// acknowledgement
-			}
-
-			if (TIMETOTELEMETRY < timeToTelemetry)
-			{
-				timeToTelemetry = 0;
-				// time to flush
-				rc_usleep(1000);
-				cloudTelemetryPost(getSensors(), getPower());
-			} else {
-				timeToTelemetry++;
-			}
-		}
-		if (programMode == DEBUG)
-		{
-			//telemetryPrintVars();
-		}
+		brainRefresh();
 		// sleep the right delay based on current mode.
 		rc_usleep(TIMEDELAY);
 	}
-	// program shutdown
-	rc_led_set(RC_LED_GREEN, 0);
-	rc_led_set(RC_LED_RED, 0);
-	telemetryShutdown();
+
+	if (sensors_thread) rc_pthread_timed_join(sensors_thread, NULL, 1.5);
+
 	rc_remove_pid_file();
-	cloudShutDown();
-	motionShutdown();
 	return 0;
 }

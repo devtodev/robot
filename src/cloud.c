@@ -5,11 +5,9 @@
  *      Author: Carlos Miguens
  */
 
-#include "telemetry.h"	// TODO: decouple this
 #include "cloud.h"
-#include "motion.h"		// TODO: decouple this
-#include "utils.h"		// TODO: decouple this
-
+#include "motion.h" // Decouple this
+#include "sensor.h" // Decouple this
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,14 +17,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "rc/time.h"
+#include "rc/start_stop.h"
 #include <errno.h>
 
 #define MAXRCVLEN 500
-#define PORTNUM 3000
-
 #define MSG_WELCOME "Welcome to the jaguar house..."
-#define SERVER_IP "192.168.11.102"
-#define SERVER_PORT 3000
 
 Connection connection;
 
@@ -110,9 +105,10 @@ int cloudSendData(char *data)
 {
    if (0 > send(connection.socketID, data, strlen(data) ,0))
    {
-	   	 printf("Error %s\n", strerror(errno));
-		 fflush(stdout);
-		 return EXIT_FAILURE;
+		connection.status = OFFLINE;
+		printf("Error %s\n", strerror(errno));
+		fflush(stdout);
+		return EXIT_FAILURE;
    }
    return EXIT_SUCCESS;
 }
@@ -143,26 +139,11 @@ int cloudReadData()
 	return 0;
 }
 
-int cloudTelemetryPost(Sensors sensors, Power power)
+int cloudTelemetryPost()
 {
 	// TODO: put all this on the telemetry.c file
-	char buffer[2046];
-	jsonBegin(buffer);
-	jsonKeyDouble("temperature\0", sensors.data.temp, buffer);
-	jsonObjBegin("accel\0", buffer);
-	jsonKeyFloat("x\0", sensors.data.accel[0], buffer);
-	jsonKeyFloat("y\0", sensors.data.accel[1], buffer);
-	jsonKeyFloat("z\0", sensors.data.accel[2], buffer);
-	jsonObjEnd(buffer);
-	jsonObjBegin("gyro\0", buffer);
-	jsonKeyInt("x\0", (int) sensors.data.gyro[0], buffer);
-	jsonKeyInt("y\0", (int) sensors.data.gyro[1], buffer);
-	jsonKeyInt("z\0", (int) sensors.data.gyro[2], buffer);
-	jsonObjEnd(buffer);
-	jsonKeyDouble("battery\0", power.batt_voltage, buffer);
-	jsonKeyDouble("jack\0", power.jack_voltage, buffer);
-	jsonEnd(buffer);
-	// printf("%s \n", buffer);
+	char *buffer;
+	buffer = getTelemetryReport();
 	cloudSendData(buffer);
 	return EXIT_SUCCESS;
 }
@@ -177,3 +158,24 @@ Status getConnectionStatus()
 	return connection.status;
 }
 
+void* __cloud_manager(__attribute__ ((unused)) void* ptr)
+{
+	cloudInit();
+	int timeToTelemetry = 0;
+	while(rc_get_state()!=EXITING)
+	{
+		if (getConnectionStatus() == OFFLINE)
+		{
+			cloudConnect();
+		} else {
+			if (0 < cloudReadData())
+			{
+				// acknowledgement
+			} else {
+				cloudTelemetryPost();
+			}
+		}
+		rc_usleep(1000000 / CLOUD_REFRESH_HZ);
+	}
+	return NULL;
+}
