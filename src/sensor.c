@@ -12,13 +12,16 @@
 #include "rc/start_stop.h"
 #include "stdlib.h"
 #include "stdio.h"
+#include "json.h"
 
 RawSensor rawSensor;
 Sensors sensors;
+char *buffer;
 
 Sensors *initSetSensor(Sensors *sensors, SensorType sensorType, UnitType unit, FilterType filter,
 			   void (*initSensor)(), void (*refreshSensor)(), void (*closeSensor)())
 {
+	buffer = malloc(4096);
 	sensors->type = sensorType;
 	sensors->filter = filter;
 	sensors->score = 0;
@@ -85,6 +88,26 @@ void sensorsShutdown(Sensors *cursor)
 		cursor->initSensor();
 		cursor = cursor->next;
 	}
+}
+
+char *getTelemetryReport()
+{
+	jsonBegin(buffer);
+	jsonKeyDouble("temperature\0", rawSensor.data.temp, buffer);
+	jsonObjBegin("accel\0", buffer);
+	jsonKeyFloat("x\0", rawSensor.data.accel[0], buffer);
+	jsonKeyFloat("y\0", rawSensor.data.accel[1], buffer);
+	jsonKeyFloat("z\0", rawSensor.data.accel[2], buffer);
+	jsonObjEnd(buffer);
+	jsonObjBegin("gyro\0", buffer);
+	jsonKeyInt("x\0", (int) rawSensor.data.gyro[0], buffer);
+	jsonKeyInt("y\0", (int) rawSensor.data.gyro[1], buffer);
+	jsonKeyInt("z\0", (int) rawSensor.data.gyro[2], buffer);
+	jsonObjEnd(buffer);
+	jsonKeyDouble("battery\0", 2, buffer);
+	jsonKeyDouble("jack\0", 3, buffer);
+	jsonEnd(buffer);
+	return buffer;
 }
 
 Sensors* getSensor(Sensors *cursor, SensorType type)

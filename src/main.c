@@ -50,13 +50,22 @@ int programInit()
 int main(void)
 {
 	pthread_t sensors_thread = 0;
+	pthread_t cloud_thread = 0;
 
     programInit();
+    motionInit();
 
 	// start sensor thread
 	if(rc_pthread_create(&sensors_thread, __sensor_manager, (void*) NULL, SCHED_OTHER, 0))
 	{
 		fprintf(stderr, "failed to start sensors thread\n");
+		return -1;
+	}
+
+	// start sensor thread
+	if(rc_pthread_create(&cloud_thread, __cloud_manager, (void*) NULL, SCHED_OTHER, 0))
+	{
+		fprintf(stderr, "failed to start cloud thread\n");
 		return -1;
 	}
 

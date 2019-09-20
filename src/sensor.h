@@ -72,6 +72,7 @@ void sensorsRefresh(Sensors *cursor);
 void sensorsShutdown(Sensors *cursor);
 Sensors *setDefaultSensors();
 Sensors* getSensor(Sensors *cursor, SensorType type);
+char *getTelemetryReport();
 void* __sensor_manager(__attribute__ ((unused)) void* ptr);
 
 void gyroInit();
