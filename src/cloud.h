@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 
 
-#define SERVER_IP "192.168.0.19"
+#define SERVER_IP "192.168.0.15"
 #define SERVER_PORT 3000
 
 #define CLOUD_REFRESH_HZ 10

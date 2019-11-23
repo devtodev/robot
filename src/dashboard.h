@@ -31,13 +31,13 @@ typedef struct _Point {
 	time_t timestamp;
 	int done;
 	struct _Point *next;
-} Point;
+} Rule;
 
 typedef struct {
 	int score;
-	Point *point;
+	Rule *rules;
 } Dashboard;
 
-void initPoint(Point *point, Conditions *condition, int score, Actions *learning);
-void addPoint(Point *point, Conditions *condition, int score, Actions *learning);
+void initRules(Rule *rule, Conditions *condition, int score, Actions *learning);
+void addRule(Rule *rule, Conditions *condition, int score, Actions *learning);
 #endif /* DASHBOARD_H_ */

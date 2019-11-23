@@ -161,7 +161,7 @@ Status getConnectionStatus()
 void* __cloud_manager(__attribute__ ((unused)) void* ptr)
 {
 	cloudInit();
-	int timeToTelemetry = 0;
+	//int timeToTelemetry = 0;
 	while(rc_get_state()!=EXITING)
 	{
 		if (getConnectionStatus() == OFFLINE)

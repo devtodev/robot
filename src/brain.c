@@ -15,7 +15,7 @@ Dashboard dashboard;
 
 void setDashboard()
 {
-	dashboard.point = NULL;
+	dashboard.rules  = NULL;
 	dashboard.score = 0;
 }
 

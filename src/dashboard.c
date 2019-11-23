@@ -8,7 +8,7 @@
 #include "dashboard.h"
 #include "stdlib.h"
 
-void initPoint(Point *point, Conditions *condition, int score, Actions *learning)
+void initRules(Rule *point, Conditions *condition, int score, Actions *learning)
 {
 	point->condition = condition;
 	point->score = score;
@@ -16,7 +16,7 @@ void initPoint(Point *point, Conditions *condition, int score, Actions *learning
 	point->next = NULL;
 }
 
-Point *removePoint(Point *root, Point *point)
+Rule *removePoint(Rule *root, Rule *point)
 {
 	if (root == point)
 	{
@@ -33,18 +33,18 @@ Point *removePoint(Point *root, Point *point)
 	return root;
 }
 
-void addPoint(Point *point, Conditions *condition, int score, Actions *learning)
+void addRule(Rule *point, Conditions *condition, int score, Actions *learning)
 {
 	while (point->next != NULL)
 	{
 		point = point->next;
 	}
-	point->next = malloc(sizeof(Point));
+	point->next = malloc(sizeof(Rule));
 	point = point->next;
-	initPoint(point, condition, score, learning);
+	initRules(point, condition, score, learning);
 }
 
-void checkPoint(Point *point)
+void checkPoint(Rule *point)
 {
 	// verify condition
 	int iCondition = 0;
