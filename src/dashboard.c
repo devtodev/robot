@@ -8,49 +8,50 @@
 #include "dashboard.h"
 #include "stdlib.h"
 
-void initRules(Rule *point, Conditions *condition, int score, Actions *learning)
+void setRule(Rule *rules, Conditions *condition, int score, Actions *learning)
 {
-	point->condition = condition;
-	point->score = score;
-	point->learning = learning;
-	point->next = NULL;
+	rules->condition = condition;
+	rules->score = score;
+	rules->learning = learning;
+	rules->next = NULL;
 }
 
-Rule *removePoint(Rule *root, Rule *point)
+Rule *removerule(Rule *rules, Rule *rule)
 {
-	if (root == point)
+	if (rules == rule)
 	{
-		return point->next;
+		return rule->next;
 	}
-	while ((root->next != point) && (root->next != NULL))
+	while ((rules->next != rule) && (rules->next != NULL))
 	{
-		root = root->next;
+		rules = rules->next;
 	}
-	if (root->next == point)
+	if (rules->next == rule)
 	{
-		root->next = root->next->next;
+		rules->next = rules->next->next;
 	}
-	return root;
+	return rules;
 }
 
-void addRule(Rule *point, Conditions *condition, int score, Actions *learning)
+void addRule(Rule *rules, Conditions *condition, int score, Actions *learning)
 {
-	while (point->next != NULL)
+	while (rules->next != NULL)
 	{
-		point = point->next;
+		rules = rules->next;
 	}
-	point->next = malloc(sizeof(Rule));
-	point = point->next;
-	initRules(point, condition, score, learning);
+	rules->next = malloc(sizeof(Rule));
+	rules = rules->next;
+	setRule(rules, condition, score, learning);
 }
 
-void checkPoint(Rule *point)
+void checkrule(Rule *rule)
 {
 	// verify condition
 	int iCondition = 0;
-	while (point->condition != NULL)
+	while (rule->condition != NULL)
 	{
-		Conditions *condition = point->condition;
+		//Conditions *condition = rule->condition;
+		//TODO:implement
 		iCondition++;
 
 	}

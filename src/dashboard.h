@@ -38,6 +38,6 @@ typedef struct {
 	Rule *rules;
 } Dashboard;
 
-void initRules(Rule *rule, Conditions *condition, int score, Actions *learning);
-void addRule(Rule *rule, Conditions *condition, int score, Actions *learning);
+void setRule(Rule *rules, Conditions *condition, int score, Actions *learning);
+void addRule(Rule *rules, Conditions *condition, int score, Actions *learning);
 #endif /* DASHBOARD_H_ */
