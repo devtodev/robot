@@ -118,6 +118,12 @@ int motionDo(ActionType action)
 			motorLeft.duty = 0.5;
 			motorRight.duty = 0.5;
 			break;
+		case SERVO_LEFT:
+			break;
+		case SERVO_RIGHT:
+			break;
+		case SERVO_STOP:
+			break;
 		default:
 			return -1;
 			break;

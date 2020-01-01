@@ -12,6 +12,7 @@
 #include "rc/time.h"
 #include "rc/pthread.h"
 #include "brain.h"
+#include "camera.h"
 
 #define TIMEDELAY 			10000 // microseconds
 #define TIMETOTELEMETRY		20	   // Multiplier of TIMEDELAY
@@ -53,6 +54,7 @@ int main(void)
 
     programInit();
     motionInit();
+    cameraInit();
 
 	// start sensor thread
 	if(rc_pthread_create(&sensors_thread, __sensor_manager, (void*) NULL, SCHED_OTHER, 0))
@@ -70,6 +72,7 @@ int main(void)
 
 	while(rc_get_state()!=EXITING){
 		brainRefresh();
+		cameraRefresh();
 		// sleep the right delay based on current mode.
 		rc_usleep(TIMEDELAY);
 	}

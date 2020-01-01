@@ -19,6 +19,7 @@
 #include "rc/time.h"
 #include "rc/start_stop.h"
 #include <errno.h>
+#include "camera.h"
 
 #define MAXRCVLEN 500
 #define MSG_WELCOME "Welcome to the jaguar house..."
@@ -93,6 +94,30 @@ int readCloudCommand(char *command)
 			break;
 		case 's':
 			motionDo(LOWSPEED);
+			break;
+		case 'z':
+			motionDo(SERVO_LEFT);
+			break;
+		case 'x':
+			motionDo(SERVO_RIGHT);
+			break;
+		case 'v':
+			motionDo(SERVO_STOP);
+			break;
+		case '1':
+			cameraSetPosition(CAMERA_LEFT);
+			break;
+		case '2':
+			cameraSetPosition(CAMERA_HALF_LEFT);
+			break;
+		case '3':
+			cameraSetPosition(CAMERA_CENTER);
+			break;
+		case '4':
+			cameraSetPosition(CAMERA_HALF_RIGHT);
+			break;
+		case '5':
+			cameraSetPosition(CAMERA_RIGHT);
 			break;
 		default:
 			return -1;
