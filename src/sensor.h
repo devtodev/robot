@@ -13,6 +13,8 @@
 #include "rc/mpu.h"
 
 #define I2C_BUS 2
+#define GPIO_INT_PIN_CHIP 3
+#define GPIO_INT_PIN_PIN  21
 #define SENSORS_REFRESH_HZ 100
 #define VOLTAGE_DISCONNECT	1 // Threshold for detecting disconnected battery
 

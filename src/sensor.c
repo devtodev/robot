@@ -101,8 +101,8 @@ char *getTelemetryReport()
 	jsonKeyFloat("z\0", rawSensor.data.accel[2], buffer);
 	jsonObjEnd(buffer);
 	jsonObjBegin("gyro\0", buffer);
-	jsonKeyInt("x\0", (int) rawSensor.data.gyro[0], buffer);
-	jsonKeyInt("y\0", (int) rawSensor.data.gyro[1], buffer);
+	jsonKeyDouble("x\0", rawSensor.data.compass_heading*RAD_TO_DEG, buffer);
+	jsonKeyDouble("y\0", rawSensor.data.compass_heading_raw*RAD_TO_DEG, buffer);
 	jsonKeyInt("z\0", (int) rawSensor.data.gyro[2], buffer);
 	jsonObjEnd(buffer);
 	jsonKeyDouble("battery\0", power.batt_voltage, buffer);
@@ -139,29 +139,21 @@ Sensors *addSensor(Sensors *sensors, SensorType sensorType, UnitType unit, Filte
 void gyroInit() {
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
+	conf.gpio_interrupt_pin_chip = GPIO_INT_PIN_CHIP;
+	conf.gpio_interrupt_pin = GPIO_INT_PIN_PIN;
 	conf.show_warnings = 0; // zero to enable
-	conf.dmp_sample_rate = SENSORS_REFRESH_HZ;
-	conf.orient = ORIENTATION_Z_UP;
-	// if gyro isn't calibrated, run the calibration routine
-	if(!rc_mpu_is_gyro_calibrated())
-	{
-		printf("Gyro not calibrated, automatically starting calibration routine\n");
-		printf("Let your MiP sit still on a firm surface\n");
-		rc_mpu_calibrate_gyro_routine(conf);
-	}
-
-	if(rc_mpu_initialize(&rawSensor.data, conf)){
+	conf.enable_magnetometer = 1;
+	conf.dmp_fetch_accel_gyro=1;
+	conf.dmp_fetch_accel_gyro=1;
+	// now set up the imu for dmp interrupt operation
+	if(rc_mpu_initialize_dmp(&rawSensor.data, conf)){
 		printf("rc_mpu_initialize_failed\n");
 		return;
 	}
 }
 void gyroRefresh(double *value) {
 	//signalFiltering(sensors.data.gyro[Z]);
-	if(0>rc_mpu_read_gyro(&rawSensor.data)){
-		printf("read gyro data failed\n");
-		return;
-	}
-	*value = rawSensor.data.gyro[2];
+	*value = rawSensor.data.compass_heading*RAD_TO_DEG;
 }
 void gyroClose() {}
 
@@ -169,10 +161,6 @@ void accInit() {}
 
 void accRefresh(double *value) {
 	// calculate acceleration, speed and distance walked
-	if(0>rc_mpu_read_accel(&rawSensor.data)){
-		printf("read accel data failed\n");
-		return;
-	}
 	*value = rawSensor.data.accel[0];
 }
 void accClose() {}
@@ -190,9 +178,6 @@ void tempInit()
 
 void tempRefresh(double *value)
 {
-	if(0>rc_mpu_read_temp(&rawSensor.data)) {
-		printf("read imu thermometer failed\n");
-	}
 	*value = rawSensor.data.temp;
 }
 
