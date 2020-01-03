@@ -12,16 +12,21 @@
 #include "utils.h"
 
 typedef enum {
-	FORWARD, BACKWARD, RIGHT, LEFT, STOP, OPENCV, CLOSECV, HIGHTSPEED, LOWSPEED, SERVO_RIGHT, SERVO_LEFT, SERVO_STOP, RC_LED_GREEN_ON, RC_LED_GREEN_OFF, RC_LED_RED_ON, RC_LED_RED_OFF
+	OPENCV, CLOSECV, HIGHTSPEED, LOWSPEED, RC_LED_GREEN_ON, RC_LED_GREEN_OFF, RC_LED_RED_ON, RC_LED_RED_OFF,
+	MOVE_FORWARD, MOVE_BACKWARD, MOVE_RIGHT, MOVE_LEFT, MOVE_STOP,
+	RIGHT_180, LEFT_180,
+	CAMERA_LEFT, CAMERA_HALF_LEFT, CAMERA_CENTER, CAMERA_HALF_RIGHT, CAMERA_RIGHT,
+	NONE
 } ActionType;
 
 typedef struct _Action{
 	ActionType type;
-	time_t start;
-	time_t end;
-	int score;
 	struct _Action *next;
-} Actions;
+} Action;
+
+ActionType getAction();
+int actionExecute(ActionType action);
+int addAction(ActionType action);
 
 
 #endif /* ACTION_H_ */

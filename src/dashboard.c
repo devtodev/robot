@@ -8,7 +8,7 @@
 #include "dashboard.h"
 #include "stdlib.h"
 
-void setRule(Rule *rules, Conditions *condition, int score, Actions *learning)
+void setRule(Rule *rules, Conditions *condition, int score, Action *learning)
 {
 	rules->condition = condition;
 	rules->score = score;
@@ -33,7 +33,7 @@ Rule *removerule(Rule *rules, Rule *rule)
 	return rules;
 }
 
-void addRule(Rule *rules, Conditions *condition, int score, Actions *learning)
+void addRule(Rule *rules, Conditions *condition, int score, Action *learning)
 {
 	while (rules->next != NULL)
 	{

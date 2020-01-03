@@ -31,7 +31,7 @@ void updateMotor(const Motor motor)
 
 void motionInit()
 {
-	currentAction = STOP;
+	currentAction = MOVE_STOP;
 	// init motor PID
 	motorsPID.kp = 0;
 	motorsPID.ki = 0;
@@ -96,16 +96,16 @@ int motionDo(ActionType action)
 {
 	switch (action)
 	{
-		case FORWARD:
+		case MOVE_FORWARD:
 			moveForward();
 			break;
-		case LEFT:
+		case MOVE_LEFT:
 			turnLeft();
 			break;
-		case RIGHT:
+		case MOVE_RIGHT:
 			turnRight();
 			break;
-		case STOP:
+		case MOVE_STOP:
 			motorLeft.duty = 1;
 			motorRight.duty = 1;
 			stop();
@@ -117,12 +117,6 @@ int motionDo(ActionType action)
 		case LOWSPEED:
 			motorLeft.duty = 0.5;
 			motorRight.duty = 0.5;
-			break;
-		case SERVO_LEFT:
-			break;
-		case SERVO_RIGHT:
-			break;
-		case SERVO_STOP:
 			break;
 		default:
 			return -1;
@@ -147,7 +141,7 @@ void speedCorrection(int factor)
 
 void motionControl(double gyro[3])
 {
-	if (currentAction == FORWARD)
+	if (currentAction == MOVE_FORWARD)
 	{
 		/* motorsPID.lastError = motorsPID.error;
 		motorsPID.error =  0 - sensors.data.gyro[Z];

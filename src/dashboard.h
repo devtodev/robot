@@ -19,7 +19,7 @@ typedef enum {
 typedef struct _Condition {
 	ConditionType type;
 	Sensors *sensors;
-	Actions *action; // action to do when the condition was targeted
+	Action *action; // action to do when the condition was targeted
 	int score;
 	struct _Condition *next;
 } Conditions;
@@ -27,7 +27,7 @@ typedef struct _Condition {
 typedef struct _Point {
 	int score;
 	Conditions *condition;
-	Actions *learning; // action path to match condition
+	Action *learning; // action path to match condition
 	time_t timestamp;
 	int done;
 	struct _Point *next;
@@ -38,6 +38,6 @@ typedef struct {
 	Rule *rules;
 } Dashboard;
 
-void setRule(Rule *rules, Conditions *condition, int score, Actions *learning);
-void addRule(Rule *rules, Conditions *condition, int score, Actions *learning);
+void setRule(Rule *rules, Conditions *condition, int score, Action *learning);
+void addRule(Rule *rules, Conditions *condition, int score, Action *learning);
 #endif /* DASHBOARD_H_ */

@@ -6,8 +6,6 @@
  */
 
 #include "cloud.h"
-#include "motion.h" // Decouple this
-#include "sensor.h" // Decouple this
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +17,7 @@
 #include "rc/time.h"
 #include "rc/start_stop.h"
 #include <errno.h>
-#include "camera.h"
+#include "action.h"
 
 #define MAXRCVLEN 500
 #define MSG_WELCOME "Welcome to the jaguar house..."
@@ -78,46 +76,37 @@ int readCloudCommand(char *command)
 	switch (command[3])
 	{
 		case 'i':
-			motionDo(FORWARD);
+			addAction(MOVE_FORWARD);
 			break;
 		case 'j':
-			motionDo(LEFT);
+			addAction(MOVE_LEFT);
 			break;
 		case 'l':
-			motionDo(RIGHT);
+			addAction(MOVE_RIGHT);
 			break;
 		case 'k':
-			motionDo(STOP);
+			addAction(MOVE_STOP);
 			break;
 		case 'd':
-			motionDo(HIGHTSPEED);
+			addAction(HIGHTSPEED);
 			break;
 		case 's':
-			motionDo(LOWSPEED);
-			break;
-		case 'z':
-			motionDo(SERVO_LEFT);
-			break;
-		case 'x':
-			motionDo(SERVO_RIGHT);
-			break;
-		case 'v':
-			motionDo(SERVO_STOP);
+			addAction(LOWSPEED);
 			break;
 		case '1':
-			cameraSetPosition(CAMERA_LEFT);
+			addAction(CAMERA_LEFT);
 			break;
 		case '2':
-			cameraSetPosition(CAMERA_HALF_LEFT);
+			addAction(CAMERA_HALF_LEFT);
 			break;
 		case '3':
-			cameraSetPosition(CAMERA_CENTER);
+			addAction(CAMERA_CENTER);
 			break;
 		case '4':
-			cameraSetPosition(CAMERA_HALF_RIGHT);
+			addAction(CAMERA_HALF_RIGHT);
 			break;
 		case '5':
-			cameraSetPosition(CAMERA_RIGHT);
+			addAction(CAMERA_RIGHT);
 			break;
 		default:
 			return -1;

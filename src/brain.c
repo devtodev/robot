@@ -10,7 +10,6 @@
 #include "action.h"
 #include "stdio.h"
 
-Actions actions;
 Dashboard dashboard;
 
 void setDashboard()
@@ -25,6 +24,11 @@ void setDefaultBrian()
 
 void brainRefresh()
 {
+	ActionType action = getAction();
+	if (action != NONE)
+	{
+		actionExecute(action);
+	}
 }
 
 void brainShutdown()

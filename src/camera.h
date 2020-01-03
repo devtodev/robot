@@ -11,12 +11,10 @@
 #define CAMERA_SERVO 8
 #define CAMERA_HZ 50
 
-typedef enum {
-	CAMERA_LEFT, CAMERA_HALF_LEFT, CAMERA_CENTER, CAMERA_HALF_RIGHT, CAMERA_RIGHT
-} CameraAngle;
+#include "action.h"
 
 int cameraInit();
-void cameraSetPosition(CameraAngle angle);
+void cameraSetPosition(ActionType angle);
 int cameraRefresh();
 
 #endif /* SRC_CAMERA_H_ */

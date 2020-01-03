@@ -31,7 +31,7 @@ int cameraInit()
 	return 0;
 }
 
-void cameraSetPosition(CameraAngle cameraAngle)
+void cameraSetPosition(ActionType cameraAngle)
 {
 	switch (cameraAngle)
 	{
