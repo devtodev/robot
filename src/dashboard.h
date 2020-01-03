@@ -18,7 +18,7 @@ typedef enum {
 
 typedef struct _Condition {
 	ConditionType type;
-	Sensors *sensors;
+	SensorType sensor;
 	Action *action; // action to do when the condition was targeted
 	int score;
 	struct _Condition *next;

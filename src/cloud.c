@@ -18,6 +18,7 @@
 #include "rc/start_stop.h"
 #include <errno.h>
 #include "action.h"
+#include "sensor.h"
 
 #define MAXRCVLEN 500
 #define MSG_WELCOME "Welcome to the jaguar house..."
@@ -66,7 +67,7 @@ int cloudConnect()
 
 int readCloudCommand(char *command)
 {
-	printf("* %c %c %c %c %c * \n", command[1], command[2], command[3], command[4], command[5]);
+//	printf("* %c %c %c %c %c * \n", command[1], command[2], command[3], command[4], command[5]);
 	if ((command[2] != '{')
 		|| (command[4] != '}')
 		|| (command[5] != '!'))
