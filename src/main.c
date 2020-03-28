@@ -57,7 +57,7 @@ int main(void)
     motionInit();
     cameraInit();
 
-	// start sensor thread
+	// start cloud thread
 	if(rc_pthread_create(&cloud_thread, __cloud_manager, (void*) NULL, SCHED_OTHER, 0))
 	{
 		fprintf(stderr, "failed to start cloud thread\n");
@@ -66,7 +66,6 @@ int main(void)
 
 	while(rc_get_state()!=EXITING){
 		brainRefresh();
-		cameraRefresh();
 		// sleep the right delay based on current mode.
 		rc_usleep(TIMEDELAY);
 	}

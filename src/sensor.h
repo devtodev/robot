@@ -32,6 +32,8 @@ typedef struct {
 void sensorsInit();
 void sensorsRefresh();
 void sensorsShutdown();
+double getSensorValue(SensorType sensor);
+char *getTelemetryReport();
 
 
 #endif /* SENSOR_H_ */

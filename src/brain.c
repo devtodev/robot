@@ -6,31 +6,19 @@
  */
 
 #include "brain.h"
-#include "dashboard.h"
 #include "action.h"
 #include "stdio.h"
+#include "condition.h"
+#include "camera.h"
 
-Dashboard dashboard;
-
-void setDashboard()
-{
-	dashboard.rules  = NULL;
-	dashboard.score = 0;
-}
-
-void setDefaultBrian()
-{
-}
 
 void brainRefresh()
 {
 	ActionType action = getAction();
+	cameraRefresh();
+	//sensorsRefresh();
 	if (action != NONE)
 	{
 		actionExecute(action);
 	}
-}
-
-void brainShutdown()
-{
 }

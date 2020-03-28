@@ -10,9 +10,8 @@
 
 #include "sensor.h"
 #include "action.h"
-#include "dashboard.h"
+#include "condition.h"
 
-void setDefaultBrian();
 void brainRefresh();
 
 #endif /* BRAIN_H_ */

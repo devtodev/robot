@@ -2,7 +2,7 @@
  * camera.c
  *
  *  Created on: Jan 1, 2020
- *      Author: karl
+ *      Author: Carlos Miguens
  */
 
 #include <rc/servo.h>

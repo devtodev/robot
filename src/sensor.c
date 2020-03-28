@@ -22,19 +22,19 @@ char *getTelemetryReport()
 {
 	//rc_mpu_read_temp(&rawSensor.data);
 	jsonBegin(buffer);
-	jsonKeyDouble("temperature\0", sensor.temp, buffer);
+	jsonKeyDouble("temperature\0", getSensorValue(TEMP), buffer);
 	jsonObjBegin("accel\0", buffer);
-	jsonKeyFloat("x\0", sensor.accel[0], buffer);
+	jsonKeyFloat("x\0", getSensorValue(ACC), buffer);
 	jsonKeyFloat("y\0", sensor.accel[1], buffer);
 	jsonKeyFloat("z\0", sensor.accel[2], buffer);
 	jsonObjEnd(buffer);
 	jsonObjBegin("gyro\0", buffer);
-	jsonKeyDouble("x\0", sensor.compass_heading*RAD_TO_DEG, buffer);
+	jsonKeyDouble("x\0", getSensorValue(COMPASS), buffer);
 	jsonKeyDouble("y\0", sensor.compass_heading_raw*RAD_TO_DEG, buffer);
 	jsonKeyInt("z\0", (int) sensor.gyro[2], buffer);
 	jsonObjEnd(buffer);
-	jsonKeyDouble("battery\0", power.batt_voltage, buffer);
-	jsonKeyDouble("jack\0", power.jack_voltage, buffer);
+	jsonKeyDouble("battery\0", getSensorValue(BATTERY), buffer);
+	jsonKeyDouble("jack\0", getSensorValue(JACK), buffer);
 	jsonEnd(buffer);
 	return buffer;
 }
@@ -53,28 +53,18 @@ void batteryRefresh() {
 	}
 }
 
-void batteryClose() {
-	rc_adc_cleanup();
-	rc_mpu_power_off();
-}
-
 void jackRefresh() {
 	power.jack_voltage = rc_adc_dc_jack();
 
 	if(power.jack_voltage<VOLTAGE_DISCONNECT){
 		power.jack_voltage = 0;
 	}
-
-}
-
-void jackClose() {
-	rc_adc_cleanup();
-	rc_mpu_power_off();
 }
 
 void sensorsInit()
 {
 	buffer = malloc(4096);
+
 	rc_mpu_config_t conf = rc_mpu_default_config();
 	conf.i2c_bus = I2C_BUS;
 	conf.gpio_interrupt_pin_chip = GPIO_INT_PIN_CHIP;
@@ -88,11 +78,16 @@ void sensorsInit()
 		printf("rc_mpu_initialize_failed\n");
 		return;
 	}
-
+	sensorsRefresh();
 }
 
 void sensorsRefresh()
 {
+	if(rc_adc_init()){
+		fprintf(stderr,"ERROR: failed to run rc_init_adc()\n");
+		return;
+	}
+
 	temperatureRefresh();
 	batteryRefresh();
 	jackRefresh();
@@ -100,5 +95,36 @@ void sensorsRefresh()
 
 void sensorsShutdown()
 {
+	rc_adc_cleanup();
+	rc_mpu_power_off();
+}
 
+double getSensorValue(SensorType type)
+{
+	double value = 0;
+	switch (type)
+	{
+		case GYRO:
+			value = sensor.compass_heading*RAD_TO_DEG;
+			break;
+		case ACC:
+			value = sensor.accel[0];
+			break;
+		case US:
+			value = 0;
+			break;
+		case TEMP:
+			value = sensor.temp;
+			break;
+		case BATTERY:
+			value = power.batt_voltage;
+			break;
+		case JACK:
+			value = power.jack_voltage;
+			break;
+		case COMPASS:
+			value = sensor.compass_heading*RAD_TO_DEG;
+			break;
+	}
+	return value;
 }

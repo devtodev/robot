@@ -2,7 +2,7 @@
  * camera.h
  *
  *  Created on: Jan 1, 2020
- *      Author: karl
+ *      Author: Carlos Miguens
  */
 
 #ifndef SRC_CAMERA_H_
