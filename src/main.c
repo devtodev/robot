@@ -12,6 +12,7 @@
 #include "rc/time.h"
 #include "rc/pthread.h"
 #include "brain.h"
+#include "btLayer.h"
 #include "camera.h"
 
 #define TIMEDELAY 			10000 // microseconds
@@ -51,11 +52,11 @@ int main(void)
 {
 	pthread_t sensors_thread = 0;
 	pthread_t cloud_thread = 0;
-
     programInit();
     sensorsInit();
     motionInit();
     cameraInit();
+    btInit();
 
 	// start cloud thread
 	if(rc_pthread_create(&cloud_thread, __cloud_manager, (void*) NULL, SCHED_OTHER, 0))
