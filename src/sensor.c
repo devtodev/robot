@@ -17,6 +17,7 @@
 rc_mpu_data_t sensor;
 char *buffer;
 Power power;
+Position position;
 
 char *getTelemetryReport()
 {
@@ -43,6 +44,10 @@ void temperatureRefresh() {
 	rc_mpu_read_temp(&sensor);
 }
 
+void magnetometerRefresh() {
+	rc_mpu_read_mag (&sensor);
+}
+
 void batteryRefresh() {
 	// read in the voltage of the 2S pack and DC jack
 	power.batt_voltage = rc_adc_batt();
@@ -59,6 +64,13 @@ void jackRefresh() {
 	if(power.jack_voltage<VOLTAGE_DISCONNECT){
 		power.jack_voltage = 0;
 	}
+}
+
+void compassRefresh() {
+	position.x =  sensor.fused_TaitBryan[TB_PITCH_X]*RAD_TO_DEG;
+	position.y =  sensor.fused_TaitBryan[TB_ROLL_Y]*RAD_TO_DEG;
+	position.z =  sensor.fused_TaitBryan[TB_YAW_Z]*RAD_TO_DEG;
+	printf("%6.1f %6.1f %6.1f", position.x, position.y, position.z);
 }
 
 void sensorsInit()
@@ -91,6 +103,7 @@ void sensorsRefresh()
 	temperatureRefresh();
 	batteryRefresh();
 	jackRefresh();
+	compassRefresh();
 }
 
 void sensorsShutdown()

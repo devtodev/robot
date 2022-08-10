@@ -29,6 +29,11 @@ typedef struct {
 	double jack_voltage;	// could be dc power supply or another battery
 } Power;
 
+typedef struct {
+	int sur;
+	float x, y, z;
+} Position;
+
 void sensorsInit();
 void sensorsRefresh();
 void sensorsShutdown();

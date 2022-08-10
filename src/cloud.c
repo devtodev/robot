@@ -3,194 +3,117 @@
  *
  *  Created on: Aug 18, 2019
  *      Author: Carlos Miguens
- */
+
+
+*/
 
 #include "cloud.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include "rc/time.h"
-#include "rc/start_stop.h"
-#include <errno.h>
 #include "action.h"
 #include "sensor.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "MQTTClient.h"
+#include "rc/time.h"
+#include "rc/start_stop.h"
+#define ADDRESS     "tcp://test.mosquitto.org:1883"
+#define CLIENTID    "Robot01"
+#define TOPIC_TELEMETRY       "robot/telemetry"
+#define TOPIC_MOTOR		        "robot/motor"
+#define QOS         1
+#define TIMEOUT     10000L
+volatile MQTTClient_deliveryToken deliveredtoken;
+int connState = OFFLINE;
 
-#define MAXRCVLEN 500
-#define MSG_WELCOME "Welcome to the jaguar house..."
-
-Connection connection;
-
-int errorCheck(int n, char * err)
+void delivered(void *context, MQTTClient_deliveryToken dt)
 {
-	if (n == -1)
-	{
-		perror(err);
-		exit(1);
-	}
-	return n;
+    printf("Message with token value %d delivery confirmed\n", dt);
+    deliveredtoken = dt;
 }
 
-void cloudInit()
+void readCommand(char *command)
 {
-	connection.socketID = socket(AF_INET, SOCK_STREAM, 0);
-//	connection.flags = errorCheck(fcntl(connection.socketID, F_GETFL), "could not get flags on TCP listening socket");
-	errorCheck(fcntl(connection.socketID, F_SETFL, O_NONBLOCK), "could not set TCP listening socket to be non-blocking");
-
-	memset(&connection.socketDestination, 0, sizeof(connection.socketDestination));              /* zero the struct */
-	connection.socketDestination.sin_family = AF_INET;
-	connection.socketDestination.sin_addr.s_addr = inet_addr(SERVER_IP);
-	connection.socketDestination.sin_port = htons(SERVER_PORT);
+	if (strcmp(command, "MOVE_FORWARD")==0) addAction(MOVE_FORWARD);
+	if (strcmp(command, "MOVE_LEFT")==0) addAction(MOVE_LEFT);
+	if (strcmp(command, "MOVE_RIGHT")==0) addAction(MOVE_RIGHT);
+	if (strcmp(command, "MOVE_STOP")==0) addAction(MOVE_STOP);
+	if (strcmp(command, "HIGHTSPEED")==0) addAction(HIGHTSPEED);
+	if (strcmp(command, "LOWSPEED")==0) addAction(LOWSPEED);
+	if (strcmp(command, "CAMERA_LEFT") ==0) addAction(CAMERA_LEFT);
+	if (strcmp(command, "CAMERA_HALF_LEFT")==0) addAction(CAMERA_HALF_LEFT);
+	if (strcmp(command, "CAMERA_CENTER")==0) addAction(CAMERA_CENTER);
+	if (strcmp(command, "CAMERA_HALF_RIGHT")==0) addAction(CAMERA_HALF_RIGHT);
+	if (strcmp(command, "CAMERA_RIGHT")==0)
+		{
+		addAction(CAMERA_RIGHT);
+		}
+}
+int msgarrvd(void *context, char *topicName, int topicLen, MQTTClient_message *message)
+{
+    int i;
+    char* payloadptr;
+    printf("Message arrived\n");
+    printf("     topic: %s\n", topicName);
+    printf("   message: ");
+    payloadptr = message->payload;
+    for(i=0; i<message->payloadlen; i++)
+    {
+        putchar(*payloadptr++);
+    }
+    putchar('\n');
+    readCommand(message->payload);
+    MQTTClient_freeMessage(&message);
+    MQTTClient_free(topicName);
+    return 1;
+}
+void connlost(void *context, char *cause)
+{
+	connState  = OFFLINE;
+    printf("\nConnection lost\n");
+    printf("     cause: %s\n", cause);
 }
 
-int cloudConnect()
+
+
+void* __mqtt_manager(__attribute__ ((unused)) void* ptr)
 {
-	rc_usleep(300000);
-	//errorCheck(bind(connection.socketID, (struct sockaddr *) &connection.socketDestination, sizeof(struct sockaddr_in)), "could not bind");
-	int conn = connect(connection.socketID, (struct sockaddr *)&connection.socketDestination, sizeof(struct sockaddr_in));
-	if (0>conn)
-	{
-		connection.status = OFFLINE;
-	    printf("\nCloud connection fail : %d \n", conn);
-	} else {
-		connection.status = ONLINE;
-		printf("\nCloud-Robot connection established : %d \n", conn);
-	}
+    MQTTClient client;
+    MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+    int rc;
+    MQTTClient_create(&client, ADDRESS, CLIENTID, MQTTCLIENT_PERSISTENCE_NONE, NULL);
+    conn_opts.keepAliveInterval = 20;
+    conn_opts.cleansession = 1;
+    MQTTClient_setCallbacks(client, NULL, connlost, msgarrvd, delivered);
+    MQTTClient_deliveryToken token;
 
-	//errorCheck(listen(connection.socketID, 100), "could not listen");
-	return EXIT_SUCCESS;
-}
-
-int readCloudCommand(char *command)
-{
-//	printf("* %c %c %c %c %c * \n", command[1], command[2], command[3], command[4], command[5]);
-	if ((command[2] != '{')
-		|| (command[4] != '}')
-		|| (command[5] != '!'))
-	{
-		return -1;
-	}
-	switch (command[3])
-	{
-		case 'i':
-			addAction(MOVE_FORWARD);
-			break;
-		case 'j':
-			addAction(MOVE_LEFT);
-			break;
-		case 'l':
-			addAction(MOVE_RIGHT);
-			break;
-		case 'k':
-			addAction(MOVE_STOP);
-			break;
-		case 'd':
-			addAction(HIGHTSPEED);
-			break;
-		case 's':
-			addAction(LOWSPEED);
-			break;
-		case '1':
-			addAction(CAMERA_LEFT);
-			break;
-		case '2':
-			addAction(CAMERA_HALF_LEFT);
-			break;
-		case '3':
-			addAction(CAMERA_CENTER);
-			break;
-		case '4':
-			addAction(CAMERA_HALF_RIGHT);
-			break;
-		case '5':
-			addAction(CAMERA_RIGHT);
-			break;
-		default:
-			return -1;
-			break;
-	}
-	return 0;
-}
-
-int cloudSendData(char *data)
-{
-   if (0 > send(connection.socketID, data, strlen(data) ,0))
-   {
-		connection.status = OFFLINE;
-		printf("Error %s\n", strerror(errno));
-		fflush(stdout);
-		return EXIT_FAILURE;
-   }
-   return EXIT_SUCCESS;
-}
-
-int cloudWelcome()
-{
-	if (-1 != accept(connection.socketID, NULL, NULL))
-	{
-	  char msg[] = "hello\n";
-	  printf("Got a connection; writing 'hello' then closing.\n");
-	  send(connection.socketID, msg, sizeof(msg), 0);
-	  close(connection.socketID);
-	  return -1;
-	}
-	return 0;
-}
-
-int cloudReadData()
-{
-	int msgLen = recv(connection.socketID,&connection.buffer[0],CLOUD_BUFFER_SIZE,0);
-
-	if(msgLen > 0) {
-		printf(" %s", &connection.buffer[0]);
-		//cloudSendData(&connection.buffer[0]);		// echo
-		readCloudCommand(&connection.buffer[0]);	// read command
-		return msgLen;
-	}
-	return 0;
-}
-
-int cloudTelemetryPost()
-{
-	// TODO: put all this on the telemetry.c file
-	char *buffer;
-	buffer = getTelemetryReport();
-	cloudSendData(buffer);
-	return EXIT_SUCCESS;
-}
-
-void cloudShutDown()
-{
-	close(connection.socketID);
-}
-
-Status getConnectionStatus()
-{
-	return connection.status;
-}
-
-void* __cloud_manager(__attribute__ ((unused)) void* ptr)
-{
-	cloudInit();
-	//int timeToTelemetry = 0;
 	while(rc_get_state()!=EXITING)
 	{
-		if (getConnectionStatus() == OFFLINE)
-		{
-			cloudConnect();
-		} else {
-			if (0 < cloudReadData())
-			{
-				// acknowledgement
-			} else {
-				cloudTelemetryPost();
-			}
-		}
+		   while (connState == OFFLINE)
+		    {
+			   if (((rc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS))
+			   {
+				   printf("Failed to connect, return code %d\n", rc);
+			   } else {
+				   connState = ONLINE;
+				   printf("Subscribing to topic %s\nfor client %s using QoS%d\n\n Press Q<Enter> to quit\n\n", TOPIC_TELEMETRY, CLIENTID, QOS);
+				   MQTTClient_subscribe(client, TOPIC_MOTOR, QOS);
+			   }
+			   rc_usleep(10000000 / CLOUD_REFRESH_HZ);
+		    }
+		MQTTClient_message pubmsg = MQTTClient_message_initializer;
+
+	    pubmsg.payload = getTelemetryReport();
+	    pubmsg.payloadlen = strlen(pubmsg.payload);
+	    pubmsg.qos = QOS;
+	    pubmsg.retained = 0;
+	    MQTTClient_publishMessage(client, TOPIC_TELEMETRY, &pubmsg, &token);
+
 		rc_usleep(1000000 / CLOUD_REFRESH_HZ);
-	}
-	return NULL;
+    }
+    MQTTClient_disconnect(client, 10000);
+    MQTTClient_destroy(&client);
+    // return rc;
+    return NULL;
 }

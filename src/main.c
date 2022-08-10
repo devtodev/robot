@@ -12,7 +12,6 @@
 #include "rc/time.h"
 #include "rc/pthread.h"
 #include "brain.h"
-#include "btLayer.h"
 #include "camera.h"
 
 #define TIMEDELAY 			10000 // microseconds
@@ -50,20 +49,28 @@ int programInit()
 
 int main(void)
 {
+//	pthread_t bluetooth_thread = 0;
+	pthread_t mqtt_thread = 0;
 	pthread_t sensors_thread = 0;
-	pthread_t cloud_thread = 0;
     programInit();
     sensorsInit();
     motionInit();
     cameraInit();
-    btInit();
+    //btInit();
 
-	// start cloud thread
-	if(rc_pthread_create(&cloud_thread, __cloud_manager, (void*) NULL, SCHED_OTHER, 0))
+	/* start cloud thread */
+	if(rc_pthread_create(&mqtt_thread, __mqtt_manager, (void*) NULL, SCHED_OTHER, 0))
 	{
 		fprintf(stderr, "failed to start cloud thread\n");
 		return -1;
 	}
+
+	/* start cloud thread
+	if(rc_pthread_create(&bluetooth_thread, __btServer_manager, (void*) NULL, SCHED_OTHER, 0))
+	{
+		fprintf(stderr, "failed to start cloud thread\n");
+		return -1;
+	}*/
 
 	while(rc_get_state()!=EXITING){
 		brainRefresh();
